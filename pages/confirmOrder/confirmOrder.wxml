@@ -1,0 +1,41 @@
+<view class="container">
+	<view class="content-wrapper">
+
+		<view class="bus-line-name">{{busName}}线</view>
+
+		<view class="bus-line-detail">
+      <view class="start-address">{{startAddress}}</view>
+      <view class="progress-line">-----------</view>
+      <view class="end-address">{{endAddress}}</view>
+		</view>
+
+		<view class="contact">
+      <view class="title">联系人</view>
+      <input class="inp" placeholder="请输入联系人" bindblur="contactName"></input>
+			<view class="errToast" hidden="{{isContactNameTrue}}">* 请输入正确的联系人名称</view>
+		</view>
+
+		<view class="contact">
+			<view class="title">联系电话</view>
+      <input class="inp" type="number" placeholder="请输入手机号码"  bindblur="contactPhone"></input>
+			<view class="errToast" hidden="{{isContactPhoneTrue}}" >* 请输入正确的手机号码</view>
+		</view>
+
+		<!--  wx:if="needChoosePeopleNum" -->
+		<view class="people-num">
+			<view class="title">乘车人数:</view>
+			<view class="change-people-num">
+				<view class="change-btn" bindtap="descNum">-</view>
+				<input class="change-num" maxlength="1" value="{{totalNum}}"></input>
+				<view class="change-btn" bindtap="addNum">+</view>
+			</view>
+		</view>
+	</view>
+
+	<view class="total">
+		<view class="total-price">￥
+			<text class="price-num">{{totalPriceNum}}</text>
+		</view>
+		<button class="purchase" type="primary" bindtap="purchase">立即购票</button>
+	</view>
+</view>

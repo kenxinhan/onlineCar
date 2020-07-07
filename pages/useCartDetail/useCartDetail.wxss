@@ -1,0 +1,83 @@
+/* pages/useCartDetail/useCartDetail.wxss */
+.container{
+  width: 100%;
+  font-size: 32rpx;
+  background-color: #f4f6f8;
+  padding-top: 40rpx;
+}
+
+image{
+  width: 50rpx;
+  height: 50rpx;
+}
+
+.address{
+  padding: 40rpx;
+  margin: 0 30rpx 50rpx;
+  background-color: #fff;
+  border: 1rpx solid #333;
+  box-shadow: 3rpx 5rpx 10rpx #d0d0d0;
+  border-radius: 40rpx;
+  box-sizing: border-box;
+}
+
+.start{
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+}
+
+.start::before{
+  content: '';
+  position: absolute;
+  top: 43rpx;
+  left: 25rpx;
+  width: 1rpx;
+  height: 95rpx;
+  background-color: #333;
+}
+
+.next{
+  position: relative;
+}
+
+.next::before{
+  content: '';
+  position: absolute;
+  bottom: 43rpx;
+  left: 25rpx;
+  width: 1rpx;
+  height: 95rpx;
+  background-color: #333;
+}
+
+.bus-strat::before{
+  content: '';
+  width: 0;
+  height: 0;
+}
+
+.left{
+  display: flex;
+  align-items: center;
+}
+
+.next{
+  display: flex; 
+  justify-content: space-between;
+  margin: 80rpx 0 40rpx 0;
+}
+
+.no-margin{
+  margin: 0;
+}
+
+.cont{
+  text-indent: 1em;
+}
+
+.pre-time{
+  text-align: right;
+  border-top: 1rpx solid #333;
+  padding: 20rpx 0 50rpx 0;
+}

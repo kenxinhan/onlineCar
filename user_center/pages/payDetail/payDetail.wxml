@@ -1,0 +1,101 @@
+  <!-- 已完成订单 -->
+  <block wx:if="{{!isClosed}}">
+  	<view class="over">
+  		<view class="h2">
+  			<view class="str">{{startAddress}}</view>
+  			<view class="car-img">
+  				<image src="../../assets/images/car.png"></image>
+  			</view>
+  			<view class="end">{{endAddress}}</view>
+  		</view>
+
+  		<view class="driver-info">
+  			<view class="left">
+  				<image class="photo" src="../../assets/images/driver.png"></image>
+  				<view class="name">{{driverInfo.driverName}}</view>
+  			</view>
+  			<view class="right">
+  				<view class="top">
+  					<view class="l">
+  						<view class="company">{{driverInfo.belongCompany}}</view>
+  						<view class="car-num">{{driverInfo.carNumber}}</view>
+  					</view>
+  					<view class="r">
+  						<view class="id">编号：{{driverInfo.driverNo}}</view>
+  					</view>
+  				</view>
+  				<view class="btm">{{driverInfo.carDescribe}}</view>
+  			</view>
+  		</view>
+  		<view wx:if="{{driverInfo.isFriendDriver === 0 && !hasAdd}}" class="addFriend" bindtap="addFriend">
+  			<image src="../../assets/images/add.png"></image>
+  			<text>添加到好友司机</text>
+  		</view>
+
+  	</view>
+
+  	<view class="container">
+  		<view class="shadow-box">
+  			<view class="pay-title">
+  				<text class="font-30">车费详情</text>
+  			</view>
+  			<view class="pay-detail">
+  				<block wx:for="{{costList}}" wx:key="index">
+  					<view class="border-bottom">
+  						<view class="flex-box font-28">
+  							<text class="mini-pay">{{item.feeName}}</text>
+  							<text class="mini-pay">{{item.totalFee}}元</text>
+  						</view>
+  						<block wx:if="{{item.subCostList.length !== 0}}" wx:for="{{item.subCostList}}" wx:for-index="ind" wx:for-item="subItem" wx:key="ind">
+  							<view class="flex-box font-24 color-999">
+  								<text>{{subItem.timeFrame}}</text>
+  								<text>{{subItem.cost}}元</text>
+  							</view>
+  						</block>
+
+  					</view>
+  				</block>
+  			</view>
+
+  			<view class="pay-tips">
+  				<text>*车费计算四舍五入取小数点后两位</text>
+  			</view>
+
+  			<view class="call-service">
+  				<image class="call-icon" bindtap="makePhoneCall" src="../../assets/images/phone.png"></image>
+  				<text class="call-text">联系客服</text>
+  			</view>
+  		</view>
+
+  		<view class="rule" bindtap="accountRule">
+  			<text>计费规则></text>
+  		</view>
+  	</view>
+  </block>
+
+  <view wx:else class="over">
+    	<view class="h2">
+  			<view class="str">{{startAddress}}</view>
+  			<view class="car-img">
+  				<image src="../../assets/images/car.png"></image>
+  			</view>
+  			<view class="end">{{endAddress}}</view>
+  		</view>
+
+      <view class="tips">订单已被取消</view>
+
+      <view class="close-btm">
+         <view class="call-car" bindtap="callAgain">
+          <view>
+            <image src="../../assets/images/call-car.png"></image>
+          </view>
+          <view class="call-btn" bindtap="recall">重新叫车</view>
+         </view>
+         <view class="contact" bindtap="makePhoneCall">
+            <view>
+              <image src="../../assets/images/servicer.png"></image>
+            </view>
+            <view class="contact-btn">联系客服</view>
+         </view>
+      </view>
+  </view>

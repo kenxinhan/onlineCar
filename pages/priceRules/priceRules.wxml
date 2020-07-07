@@ -1,0 +1,19 @@
+<view class="container">
+		<view class="banner">
+			<image src="../../assets/images/price-rules.jpg"></image>
+		</view>
+	<view class="priceBox">
+		<view class="listBox" wx:for="{{list}}" wx:key="index">
+			<view class="list-title">
+				<text class="title-28">{{item.feeRulesName}}</text>
+				<text class="title-28" wx:if="{{item.minimumCharge}}">{{item.minimumCharge}}</text>
+			</view>
+			<block wx:if="{{item.timeFrameList}}">
+				<view class="list-item" wx:for="{{item.timeFrameList}}" wx:for-index="idx" wx:for-item="subItem" wx:key="idx">
+					<text class="text-24">{{subItem.timeFrameName}}</text>
+					<text class="text-24">{{subItem.timeFrameFee}}</text>
+				</view>
+			</block>
+		</view>
+	</view>
+</view>

@@ -1,0 +1,36 @@
+<view class="container">
+	<view class="bg" wx:if="{{noFriends}}">
+		<image src="../../assets/images/no-friend.png"></image>
+		<view>您还没有好友司机</view>
+		<view>请先添加好友司机</view>
+	</view>
+
+	<view class="list" wx:else>
+	<block wx:for="{{driver}}" wx:key="index" >
+			<view class="item" bindlongpress="delFriend" data-id="{{item.driverNo}}">
+			<view class="pt">
+				<image class="photo" src="../../assets/images/driver.png"></image>
+			</view>
+			
+			<view class="driver-info">
+				<view class="inner">
+					<view class="left">
+						<view class="name">{{item.driverName}}</view>
+						<view class="car-num">{{item.carNumber}}</view>
+					</view>
+					<view class="right">
+						<view class="distance">{{item.distance?item.distance:item.stateName}}</view>
+						<view class="car-id">编号：{{item.driverNo}}</view>
+					</view>
+				</view>
+				<view class="company">{{item.belongCompany}}</view>
+			</view>
+			<view class="status">
+				<view class="color {{item.stateName === '在线' ? 'online' : (item.stateName === '行程中' ? 'driving' : 'offline')}}"></view>
+				<view class="txt">{{item.stateName}}</view>
+			</view>
+			<view class="del-friend" wx:if="{{showDel === item.driverNo}}" bindtap="confirmDel" data-id="{{item.driverNo}}">删除好友司机</view>
+		</view>
+	</block>
+	</view>
+</view>

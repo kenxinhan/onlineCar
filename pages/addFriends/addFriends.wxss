@@ -1,0 +1,91 @@
+/* pages/addFriends/addFriends.wxss */
+.container{
+  padding: 0 40rpx;
+}
+.search{
+  margin: 40rpx 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 32rpx;
+}
+
+input{
+  width: 100%;
+  padding: 8rpx;
+  padding-left: 20rpx;
+  border: 1rpx solid #ccc;
+  border-radius: 20rpx;
+  box-shadow: 4rpx 4rpx 4rpx #eee inset;
+}
+
+
+.bg-img{
+  padding: 0 50rpx;
+  margin: 216rpx auto 0;
+  text-align: center;
+  color: #9A9A9A;
+  font-size: 28rpx;
+}
+
+.bg-img image{
+  width: 324rpx;
+  height: 317rpx;
+  margin-bottom: 21rpx;
+}
+
+.item{
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-size: 30rpx;
+  padding: 20rpx 0 40rpx;
+  border-radius: 20rpx;
+  background-color: #eee;
+}
+
+.photo{
+  width: 90rpx;
+  height: 90rpx;
+  padding: 0 40rpx;
+}
+
+.driver-info .inner{
+  width: 100%;
+  display: flex;
+  padding-bottom: 5rpx;
+}
+
+.driver-info .left{
+  padding-right: 20rpx;
+}
+
+.driver-info .left>.name{
+  height: 48rpx;
+  padding-bottom: 5rpx;
+}
+
+
+.company{
+  height: 48rpx;
+  font-weight: bold;
+  padding-bottom: 5rpx;
+}
+
+.add{
+  position: absolute;
+  line-height: 40rpx;
+  text-align: center;
+  font-size: 32rpx;
+  background-color: #ff9844;
+  color: #fff;
+  border-radius: 10rpx;
+  right: 20rpx;
+  bottom: 10rpx;
+  padding: 10rpx 20rpx;
+}
+
+.has-add{
+  background-color: #ccc;
+  color: #999;
+}

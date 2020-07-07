@@ -1,0 +1,146 @@
+.container{
+  position: relative;
+  width: 100%; 
+  height: 100vh; 
+  background-color: #eee;
+}
+.wrapper{
+  padding: 20rpx 30rpx 0;
+}
+
+.home_comp{
+  height: 80rpx;
+  background-color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40rpx;
+  font-size: 32rpx;
+  border-radius: 10rpx;
+}
+
+.home_comp image{
+  width: 50rpx;
+  height: 50rpx;
+  margin-right: 30rpx;
+}
+
+.home_comp>.home,.home_comp>.company{
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.home_comp .t{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.home_comp .b{
+  color: #999;
+  font-size: 28rpx;
+}
+
+.home_comp .text{
+  flex: 1;
+}
+
+.used-location .left{
+  flex: 1;
+}
+
+.used-location .more{
+  width: 40rpx;
+  height: 40rpx;
+}
+  
+.tit{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  font-size: 42rpx;
+  font-weight: bold;
+}
+
+.tit image{
+  width: 60rpx;
+  height: 60rpx;
+}
+
+.used-location>.list{
+  font-size: 32rpx;
+}
+
+.used-location .left{
+  display: flex;
+  align-items: center;
+}
+
+.used-location .left>image{
+  width: 30rpx;
+  height: 30rpx;
+  margin-right: 40rpx;
+}
+
+.used-location .item{
+  height: 150rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 10rpx;
+  margin-bottom: 20rpx;
+  padding: 10rpx 40rpx;
+}
+
+.desc{
+  font-size: 28rpx;
+  color: #999;
+}
+
+.md{
+  flex: 1;
+}
+
+.cover{
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 999;
+  background-color: rgba(0, 0, 0,.3);
+}
+
+.handle-btn{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  font-size: 32rpx;
+  font-weight: bold;
+  background-color: #eee;
+  border-top-left-radius: 20rpx;
+  border-top-right-radius: 20rpx;
+}
+
+.handle-btn>view{
+  background-color: #fff;
+  color: #666;
+  padding: 30rpx 0;
+  text-align: center;
+}
+
+.change_lo{
+  border-top-left-radius: 20rpx;
+  border-top-right-radius: 20rpx;
+}
+
+.handle-btn .del_lo{
+  color: #f00;
+  margin: 10rpx 0 20rpx;
+}

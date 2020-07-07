@@ -1,0 +1,28 @@
+  
+  <view class="container">
+      <view class="weui-panel__bd">
+				<view class="weui-media-box weui-media-box_small-appmsg">
+					<view class="weui-cells">
+            <!-- <a class="weui-cell weui-cell_active weui-cell_access weui-cell_example" bindtap="location">						
+							<view class="weui-cell__bd weui-cell_primary">
+								<view class="font-28">常用地址</view>
+							</view>
+							<text class="weui-cell__ft"></text>
+						</a> -->
+            <a class="weui-cell weui-cell_active weui-cell_access weui-cell_example" bindtap="about">						
+							<view class="weui-cell__bd weui-cell_primary">
+								<view class="font-28">关于</view>
+							</view>
+							<text class="weui-cell__ft"></text>
+						</a>
+					</view>
+				</view>
+			</view>
+
+			<view class="quit">
+					<button class="loginBtn"  bindtap="loginOut">退出登录</button>
+		</view>
+  </view>
+ 
+
+

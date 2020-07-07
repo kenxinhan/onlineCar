@@ -1,0 +1,30 @@
+<view class="container">
+	<view class="search">
+		<input placeholder="请输入司机编号添加好友" bindinput="getId" type="number" maxlength="4" value="{{value}}"></input>
+	</view>
+
+	<view class="bg-img" hidden="{{hasSearchRes}}">
+		<view wx:if="{{noDriver}}">
+			<image src="../../assets/images/no-this-driver.png"></image>
+			<view>没有这位司机哦~</view>
+		</view>
+		<image wx:else src="../../assets/images/no-friend.png"></image>
+	</view>
+	<view class="item" hidden="{{!hasSearchRes}}">
+		<image class="photo" src="{{driverInfo.headPicUrl || driverImg}}"></image>
+		<view class="driver-info">
+			<view class="inner">
+					<view class="left">
+						<view class="name">{{driverInfo.driverName}}</view>
+						<view class="car-num">{{driverInfo.carNumber}}</view>
+					</view>
+					<view class="right">
+						<view class="company">{{driverInfo.belongCompany}}</view>
+						<view class="car-id">编号：{{driverInfo.driverNo}}</view>
+					</view>
+			</view>
+			<view class="desc">{{driverInfo.bodyColor}} {{driverInfo.carDescribe}}</view>
+			<view class="add {{addText === '已添加' ? 'has-add' : ''}}" bindtap="add">{{addText}}</view>
+		</view>
+	</view>
+</view>

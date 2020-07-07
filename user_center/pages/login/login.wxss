@@ -1,0 +1,43 @@
+/* pages/login/login.wxss */
+@import '../../../styles/didi-btn.wxss';
+page{
+  width: 100%;
+  height: 100vh;
+  background-color: #f4f6f8;
+}
+.banner{
+  width: 750rpx;
+  height: 300rpx;
+  box-sizing: border-box;
+}
+
+.banner image{
+  width: 100%;
+  height: 300rpx;
+  display: block;
+}
+
+.authBox{
+  width: 100%;
+  margin-top: 60rpx;
+  font-size: 28rpx;
+}
+
+.authBox image{
+  width: 50rpx;
+  height: 50rpx;
+  margin-right: 20rpx;
+}
+
+.loginBtn{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width:710rpx;
+  height: 92rpx;
+  line-height: 92rpx;
+  font-size: 32rpx;
+  background-color:#1aad19;
+  color:#fff;
+  border:none;
+}

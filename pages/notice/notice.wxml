@@ -1,0 +1,14 @@
+<view class="container">
+	<view class="has-read {{allRead?'read-done':''}}" bindtap="hasRead">全部已读</view>
+	<view class="sys_notice" wx:for="{{noticeList}}" wx:key="index" bindtap="toDetail" data-id="{{item.id}}">
+		<image src="../../assets/images/tongzhi.png"></image>
+		<view class="cont">
+			<view class="top">
+				<view class="tit">{{item.describe}}</view>
+				<view class="time">{{time.timeDescribe}}</view>
+			</view>
+			<view class="btm">{{item.title}}</view>
+		</view>
+		<view class="dot" wx:if="{{ item.num != 0}}">{{item.num}}</view>
+	</view>
+</view>

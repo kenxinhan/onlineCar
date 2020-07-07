@@ -1,0 +1,11 @@
+
+  {
+      "usingComponents":{
+        "List": "../../components/list/list"
+      },
+      "backgroundTextStyle":"dark",
+      "navigationBarBackgroundColor": "#fff",
+      "navigationBarTitleText": "快车预估明细",
+      "navigationBarTextStyle":"black"
+    
+  }

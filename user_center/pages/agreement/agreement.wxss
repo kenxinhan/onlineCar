@@ -1,0 +1,40 @@
+.container{
+  width: 100%;
+  font-size: 34rpx;
+  padding: 20rpx 40rpx;
+  box-sizing: border-box;
+}
+
+.header{
+  font-size: 36rpx;
+  font-weight: bold;
+  border-bottom: 1rpx solid #999;
+  padding-bottom: 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.title{
+  font-size: 42rpx;
+  font-weight: bold;
+  margin-bottom: 0;
+}
+
+.brief{
+  margin-bottom: 40rpx;
+}
+
+.brief>text{
+  font-weight: bold;
+}
+
+.main>view>view{
+  margin-bottom: 40rpx;
+}
+
+.safeguard>view{
+  margin-bottom: 40rpx;
+}
+
+.safeguard>.title{
+  margin-bottom: 40rpx;
+}

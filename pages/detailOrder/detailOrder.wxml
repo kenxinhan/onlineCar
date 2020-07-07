@@ -1,0 +1,44 @@
+<!--pages/detailOrder/detailOrder.wxml-->
+<view class="container">
+	<view class="wrapper">
+		<view class="start-address">
+			<text class="start-address-cont">上车点:  {{orderInfo.startAddress}}</text>
+			<image class="start-img" src="../../assets/images/nav-arrow.png"></image>
+		</view>
+
+		<view class="end-address">
+			<text class="end-address-cont">下车点:  {{orderInfo.endAddress}}</text>
+			<image class="end-img" src="../../assets/images/nav-arrow.png"></image>
+		</view>
+
+		<view class="time">
+			<text class="time-cont">预计时间: {{orderInfo.time}}分钟</text>
+		</view>
+
+		<view class="driver-info">
+			<block wx:if="{{notWaiting}}">
+				<view class="brief-info">
+					<image class="photo" src="../../assets/images/driver.png"></image>
+					<view class="text-wrapper">
+						<view class="cont">
+							<view class="name">张师傅</view>
+							<view class="car-num">粤B65312</view>
+						</view>
+						<image class="phone" src="../../assets/images/phone.png"></image>
+					</view>
+				</view>
+				<view class="car-info">红色 ♥ 大众新捷达捷达</view>
+			</block>
+		</view>
+
+		<view class="footer">
+			<view class="left">
+				<view class="cancle-trip" wx:if="{{!notWaiting}}">取消行程</view>
+
+				<view class="price">车费: <text class="price-num">￥ {{orderInfo.totalPriceNum}}</text></view>
+			</view>
+
+			<view class="right">联系客服</view>
+		</view>
+	</view>
+</view>

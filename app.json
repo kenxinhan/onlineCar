@@ -1,0 +1,63 @@
+{
+  "pages": [
+    
+    "pages/index/index",
+    "pages/travalEnd/travalEnd",
+    "pages/orderService/orderService",
+    "pages/notice/notice",
+    "pages/noticeDetail/noticeDetail",
+    "pages/intercity/intercity",
+    "pages/confirmOrder/confirmOrder",
+    "pages/detailOrder/detailOrder",
+    "pages/moreLineDetailOrder/moreLineDetailOrder",
+    "pages/priceRules/priceRules",
+    "pages/starting/starting",
+    "pages/destination/destination",
+    "pages/searchCity/searchCity",
+    "pages/confirmCall/confirmCall",
+    "pages/useCartDetail/useCartDetail",
+    "pages/addFriends/addFriends",
+    "pages/out/out"
+    
+  ],
+  "subpackages":[
+    {
+      "root":"user_center",
+      "name":"user_center",
+      "pages":[
+        "pages/personalCenter/personalCenter",
+        "pages/coupon/coupon",
+        "pages/setting/setting",
+        "pages/travelList/travelList",
+        "pages/payDetail/payDetail",
+        "pages/budgetPrice/budgetPrice",
+        "pages/login/login",
+        "pages/driverFriends/driverFriends",
+        "pages/usedLocation/usedLocation",
+        "pages/about/about",
+        "pages/agreement/agreement",
+        "pages/searchUsedAddress/searchUsedAddress"
+      ],
+      "independent":false
+    }
+  ],
+
+  "permission": {
+    "scope.userLocation": {
+      "desc": "峡市约车需要获取你的位置信息"
+    }
+  },
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "峡市约车",
+    "navigationBarTextStyle": "black"
+  },
+  "sitemapLocation": "sitemap.json",
+  "plugins": {
+    "routePlan": {
+      "version": "1.0.5",
+      "provider": "wx5bc2ac602a747594"
+    }
+  }
+}

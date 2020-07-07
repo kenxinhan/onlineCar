@@ -1,0 +1,104 @@
+<!--pages/moreLineDetailOrder/moreLineDetailOrder.wxml-->
+<view class="container">
+	<view class="origin-address address">
+		<view class="start">
+      <view class="left">
+        <image class="circle" src="../../assets/images/circle.png"></image>
+			  <text class="cont">{{mixinAddress.originAddress}}</text>
+      </view>
+			<image class="arrow" src="../../assets/images/nav-arrow.png"></image>
+		</view>
+		
+		<view class="end">
+			<view class="left">
+        <image class="circle" src="../../assets/images/circle.png"></image>
+			  <text class="cont"> {{mixinAddress.startAddress}}</text>
+      </view>
+			<image class="arrow" src="../../assets/images/nav-arrow.png"></image>
+		</view>
+
+		<view class="driver-info" wx:if="{{isOriginDriverInfoShow}}">
+			<view class="brief-info">
+				<image class="photo" src="../../assets/images/driver.png"></image>
+				<view class="text-wrapper">
+					<view class="cont">
+						<view class="name">张师傅</view>
+						<view class="car-num">粤B65312</view>
+					</view>
+					<image class="phone" src="../../assets/images/phone.png"></image>
+				</view>
+			</view>
+			<view class="car-info">红色 ♥ 大众新捷达捷达</view>
+		</view>
+	</view>
+
+	<view class="start-address address">
+		<view class="start">
+			<view class="left">
+        <image class="circle" src="../../assets/images/circle.png"></image>
+			  <text class="cont"> {{mixinAddress.startAddress}}</text>
+      </view>
+			<image class="arrow" src="../../assets/images/nav-arrow.png"></image>
+		</view>
+		
+		<view class="end">
+			<view class="left">
+        <image class="circle" src="../../assets/images/circle.png"></image>
+			  <text class="cont"> {{mixinAddress.endAddress}}</text>
+      </view>
+			<image class="arrow" src="../../assets/images/nav-arrow.png"></image>
+		</view>
+
+		<view class="driver-info" wx:if="{{isStartDriverInfoShow}}">
+			<view class="brief-info">
+				<image class="photo" src="../../assets/images/driver.png"></image>
+				<view class="text-wrapper">
+					<view class="cont">
+						<view class="name">张师傅</view>
+						<view class="car-num">粤B65312</view>
+					</view>
+					<image class="phone" src="../../assets/images/phone.png"></image>
+				</view>
+			</view>
+			<view class="car-info">红色 ♥ 大众新捷达捷达</view>
+		</view>
+	</view>
+
+	<view class="end-address address">
+		<view class="start">
+			<view class="left">
+        <image class="circle" src="../../assets/images/circle.png"></image>
+			  <text class="cont"> {{mixinAddress.endAddress}}</text>
+      </view>
+			<image class="arrow" src="../../assets/images/nav-arrow.png"></image>
+		</view>
+		
+		<view class="end">
+			<view class="left">
+        <image class="circle" src="../../assets/images/circle.png"></image>
+			  <text class="cont"> {{mixinAddress.destination}}</text>
+      </view>
+			<image class="arrow" src="../../assets/images/nav-arrow.png"></image>
+		</view>
+
+		<view class="driver-info" wx:if="{{isEndDriverInfoShow}}">
+			<view class="brief-info">
+				<image class="photo" src="../../assets/images/driver.png"></image>
+				<view class="text-wrapper">
+					<view class="cont">
+						<view class="name">张师傅</view>
+						<view class="car-num">粤B65312</view>
+					</view>
+					<image class="phone" src="../../assets/images/phone.png"></image>
+				</view>
+			</view>
+			<view class="car-info">红色 ♥ 大众新捷达捷达</view>
+		</view>
+	</view>
+
+	<view class="contact-service  clearfix">
+		<button class="contact-btn">联系客服</button>
+	</view>
+
+	<button class="cancel" type="primary">取消行程</button>
+</view>

@@ -1,0 +1,126 @@
+<view class="container">
+	<map class="map" id="map" latitude="{{latitude}}" longitude="{{longitude}}" polyline="{{polyline}}" markers="{{markers}}" controls="{{controls}}" include-points='{{points}}' bindcontroltap="bindcontroltap">
+	</map>
+	<view class="total">
+		<block wx:if="{{!isWaiting}}">
+			<view class="total_driver">
+				<view class="driver_info">
+					<view class="driver_img">
+						<image class="driverImg" src="{{driver.headimg || driverImg}}" />
+						<view class="name">{{driver.name}}</view>
+					</view>
+
+					<view class="driver_detailed">
+						<view class="d_top">
+							<view class="company">{{driver.company}}</view>
+							<view>{{driver.orderTotal}}单</view>
+						</view>
+
+						<view class="d_md">
+							<view class="detailed_Cartnumber">{{driver.licensePlate}}</view>
+							<view class="d_id">编号：{{driver.idNo}}</view>
+						</view>
+						<view class="detailed_cart">{{driver.carDesc}}</view>
+
+					</view>
+				</view>
+				<view class="driver_icon">
+					<view class="ic_phone" bindtap="callDriver" data-phone="{{driver.phone}}">
+						<image src="../../assets/images/common_icon_phone.png" />
+					</view>
+				</view>
+			</view>
+			<view class="footer">
+				<!-- view不支持单边框 高度为0.5的盒子实现 -->
+				<view class="enpty-box"></view>
+				<view class="footer-box" wx:if="{{!hasSit}}">
+					<view class="footer-desc" bindtap="cancleWait">取消行程</view>
+					<view class="footer-desc" bindtap="toService">联系客服</view>
+				</view>
+				<view class="footer-box" wx:else>
+					<view class="footer_contact" bindtap="toService">联系客服</view>
+				</view>
+			</view>
+		</block>
+
+		<!-- 等待应答状态底部 -->
+		<!-- <view wx:else class="wait-info">
+			<view class="path-info">
+				<view class="path-time">约12分钟</view>
+				<view class="distance">8公里</view>
+			</view>
+			<view class="wait-price">
+				<view class="tot">约<text>22</text>元</view>
+				<view class="desc">（已优惠3.0元）</view>
+			</view>
+			<view class="wait-cancle" bindtap="cancleWait">取消行程</view>
+		</view> -->
+		<view wx:else class="wait-info">
+			<view class="path-info">
+				<view class="path-time">约{{pathTime}}</view>
+				<view class="distance">{{distance}}公里</view>
+			</view>
+			<view class="wait-price">
+				<view class="tot">约<text class="tot_num"> {{totPrice}} </text>元</view>
+				<view class="desc">（已优惠{{descPrice}}元）</view>
+			</view>
+			<view class="wait-cancle" bindtap="cancleWait">取消行程</view>
+		</view>
+
+	</view>
+
+	<!-- <view class="ft" hidden="{{hideWalkTips}}">
+		<image class="ft-img" src="../../assets/images/walk_1.png"></image>
+		<view class="ft-cancel">
+			步行至<text class="ft-address">「{{startAddress}}」</text> 上车
+		</view>
+	</view> -->
+
+	<modal title="" confirm-text="等待司机" cancel-text="取消叫车" hidden="{{modalHidden}}" bindconfirm="modalConfirm" bindcancel="modalCancel">
+		<text class="modal-text">{{cancleCont}}</text>
+	</modal>
+
+	<view hidden="{{!isWaiting}}" class="wait">
+		<view class="wleft">
+			<view class="txt">等待</view>
+			<view class="time">{{time}}</view>
+		</view>
+		<view class="wright">{{title_tips}}</view>
+	</view>
+
+	<view class="walk-tips" hidden="{{hideWalkTips}}">
+		<image src="../../assets/images/walk.png"></image>
+		<view>
+			步行至<text>[{{startAddress}}]</text>上车
+		</view>
+	</view>
+
+	<view class="path-tips" wx:if="{{pathTips}}">
+		<block wx:if="{{totPrice}}">
+			<view class="path-tips-inner">
+				<view class="distance">
+					距离终点
+					<text>{{distance}}公里</text>
+				</view>
+				<view class="time">
+					预计行驶
+					<text>{{pathTime}}</text>
+				</view>
+			</view>
+			<view class="money">
+				<text>{{totPrice}}元</text>
+			</view>
+		</block>
+
+		<block wx:else>
+			<view class="hidePrice">距起点 <text>{{distance}}公里 {{pathTime}}</text></view>
+		</block>
+
+	</view>
+
+	<!-- 有预约   -->
+	<view class="has-future" wx:if="{{startDate}}">
+		<image src="../../assets/images/clock.png"></image>
+		<view class="fu-date">{{startDate}} 出发</view>
+	</view>
+</view>

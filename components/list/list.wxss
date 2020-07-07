@@ -1,0 +1,27 @@
+.listBox{
+  margin-bottom: 30rpx;
+}
+
+.list-title{
+  font-size: 28rpx;
+  color: #333;
+}
+
+.list-item{
+  display: flex;
+  justify-content: space-between;
+}
+
+/* .list-item text{
+  line-height: 44rpx;
+} */
+
+.title-28{
+  font-size: 28rpx;
+  color: #333;
+}
+
+.text-24{
+  font-size: 24rpx;
+  color: #999;
+}

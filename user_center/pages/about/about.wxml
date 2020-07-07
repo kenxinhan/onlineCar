@@ -1,0 +1,17 @@
+  <view class="container">
+      <view class="weui-panel__bd">
+				<view class="weui-media-box weui-media-box_small-appmsg">
+					<view class="weui-cells">
+            <a class="weui-cell weui-cell_active weui-cell_access weui-cell_example" bindtap="agreement">						
+							<view class="weui-cell__bd weui-cell_primary">
+								<view class="font-28">服务协议</view>
+							</view>
+							<text class="weui-cell__ft"></text>
+						</a>
+					</view>
+				</view>
+			</view>
+  </view>
+ 
+
+

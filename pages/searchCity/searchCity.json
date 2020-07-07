@@ -1,0 +1,8 @@
+{
+  "usingComponents": {},
+    "backgroundTextStyle":"dark",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "切换城市",
+    "navigationBarTextStyle":"black"
+  
+}

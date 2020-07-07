@@ -1,0 +1,16 @@
+
+
+  <view class="listBox">
+        <view class="list-title">
+          <slot name="listTitle">
+            
+          </slot>
+        </view>
+        
+        <view class="list-item">
+          <slot name="listItem">
+           
+          </slot>
+        </view>
+  </view>
+

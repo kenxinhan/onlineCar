@@ -1,0 +1,8 @@
+{
+  "usingComponents": {},
+    "backgroundTextStyle":"dark",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "确认呼叫",
+    "navigationBarTextStyle":"black"
+  
+}

@@ -1,0 +1,69 @@
+<view class="container">
+    <view class="sectionBox">
+      <view class="head">
+      <view wx:if="{{avatar}}">
+        <image class="head_img" src="{{avatar}}"></image>
+      </view>
+      <view wx:else>
+        <image class="head_img" src="../../assets/images/touxiang.png"></image>
+      </view>     
+      </view>
+      <text class="head_nick">{{nickName}}</text>
+    </view>
+    
+    <view class="weui-panel">
+			<!-- <view class="weui-panel__hd">小图文组合列表</view> -->
+			<view class="weui-panel__bd">
+				<view class="weui-media-box weui-media-box_small-appmsg">
+					<view class="weui-cells">
+						<a class="weui-cell weui-cell_active weui-cell_access weui-cell_example" bindtap="checkList">
+							<view class="weui-cell__hd">
+                <image src="../../assets/images/icon-dingdan.png"style="width: 20px; height: 20px; margin-right: 16px; display: block;"></image>
+              </view>
+							<view class="weui-cell__bd weui-cell_primary">
+								<view class="font-28">行程订单</view>
+							</view>
+							<text class="weui-cell__ft"></text>
+						</a>
+						<a class="weui-cell weui-cell_active weui-cell_access weui-cell_example" bindtap="checkWallet">
+							<view class="weui-cell__hd">
+                <image src="../../assets/images/icon-qianbao.png"style="width: 20px; height: 20px; margin-right: 16px; display: block;"></image>
+              </view>
+							<view class="weui-cell__bd weui-cell_primary">
+								<view class="font-28">优惠券</view>
+							</view>
+							<text class="weui-cell__ft"></text>
+						</a>
+            <a class="weui-cell weui-cell_active weui-cell_access weui-cell_example" bindtap="toService">
+							<view class="weui-cell__hd">
+                <image src="../../assets/images/icon-kefu.png"style="width: 20px; height: 20px; margin-right: 16px; display: block;"></image>
+              </view>
+							<view class="weui-cell__bd weui-cell_primary">
+								<view class="font-28">客服</view>
+							</view>
+							<text class="weui-cell__ft"></text>
+						</a>
+            <!-- <a class="weui-cell weui-cell_active weui-cell_access weui-cell_example" bindtap="driverFriends">
+							<view class="weui-cell__hd">
+                <image src="../../assets/images/icon-haoyousiji.png"style="width: 20px; height: 20px; margin-right: 16px; display: block;"></image>
+              </view>
+							<view class="weui-cell__bd weui-cell_primary">
+								<view class="font-28">好友司机</view>
+							</view>
+							<text class="weui-cell__ft"></text>
+						</a> -->
+            <a class="weui-cell weui-cell_active weui-cell_access weui-cell_example" bindtap="checkSetting">
+							<view class="weui-cell__hd">
+                <image src="../../assets/images/icon-shezhi.png"style="width: 20px; height: 20px; margin-right: 16px; display: block;"></image>
+              </view>
+							<view class="weui-cell__bd weui-cell_primary">
+								<view class="font-28">设置</view>
+							</view>
+							<text class="weui-cell__ft"></text>
+						</a>
+					</view>
+				</view>
+			</view>
+		</view>
+
+</view>

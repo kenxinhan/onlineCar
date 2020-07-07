@@ -1,0 +1,87 @@
+.container{
+  padding: 40rpx;
+}
+
+
+.bg{
+  margin: 180rpx auto 0;
+  text-align: center;
+  font-size: 36rpx;
+  color: #999;
+}
+
+.bg>image{
+  width: 550rpx;
+  height: 550rpx;
+  margin-bottom: 20rpx;
+}
+
+.list{
+  padding-top: 40rpx;
+}
+
+.item{
+  position: relative;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  font-size: 30rpx;
+  padding: 30rpx 0;
+  margin-bottom: 20rpx;
+  border-radius: 20rpx;
+  border-bottom: 1rpx solid #999;
+}
+
+
+.photo{
+  width: 100rpx;
+  height: 100rpx;
+}
+
+.driver-info{
+  width: 350rpx;
+  font-size: 28rpx;
+}
+
+.inner{
+  display: flex;
+  justify-content: space-between;
+}
+
+.company{
+  font-weight: bold;
+}
+
+.status{
+  display: flex;
+  align-items: center;
+  font-size: 32rpx;
+}
+
+.status>.color{
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  margin-right: 10rpx;
+}
+
+.status>.online{
+  background-color: #3dfc4d;
+}
+.status>.driving{
+  background-color: #f89a2e;
+}
+.status>.offline{
+  background-color: #ccc;
+}
+
+.del-friend{
+  position: absolute;
+  right: 10rpx;
+  bottom: -40rpx;
+  padding: 20rpx;
+  font-size: 34rpx;
+  background-color: #fff;
+  border: 1rpx solid #eee;
+  box-shadow: 5rpx 5rpx 5rpx #eee;
+}

@@ -1,0 +1,74 @@
+.container{
+  width: 100%;
+  padding: 0 40rpx;
+  box-sizing: border-box;
+}
+
+.has-read{
+  text-align: right;
+  font-size: 32rpx;
+  padding: 20rpx;
+  color: #333;
+}
+
+.sys_notice,.act_notice{
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 30rpx;
+  margin-bottom: 30rpx;
+  border-bottom: 1rpx solid #ccc;
+}
+
+image{
+  width: 110rpx;
+  height: 110rpx;
+}
+
+.cont{
+  width: 78%;
+}
+
+.top{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tit{
+  font-size: 36rpx;
+  font-weight: bold;
+  padding-bottom: 20rpx;
+}
+
+.time{
+  color: #bbb;
+  font-size: 34rpx;
+}
+
+.btm{
+  color: #999;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  word-break: break-all;
+  font-size: 34rpx;
+}
+
+.dot{
+  position: absolute;
+  left: 75rpx;
+  top: 0;
+  width: 50rpx;
+  height: 50rpx;
+  text-align: center;
+  line-height: 50rpx;
+  background-color: #27bfca;
+  color: #fff;
+  border-radius: 50%;
+}
+
+.read-done{
+  color: #aaa;
+}

@@ -1,0 +1,36 @@
+
+
+<view class="container">
+ <view class="header">
+  <image src="../../assets/images/icon_shiyongshouming.png"></image>
+  <view>优惠券使用说明</view>
+ </view>
+
+ <view class="list">
+  <view class="item" wx:for="{{listData}}" wx:key="index">
+    <view class="left">
+      <image src="../../assets/images/youhuiquan_bg_small01.png"></image>
+      <view class="text">
+        <view class="price" wx:if="{{item.couponType === 1}}">￥<text>{{item.couponValue}}</text></view>
+        <view class="price" wx:elif="{{item.couponType === 2}}"><text>{{item.couponValue}}</text>折</view>
+      </view>
+       
+    </view>
+    <view class="right">
+      <view class="top">
+        <view class="name">{{item.businessName}}</view>
+        <view>{{item.useThresholdDesc}}</view>
+      </view>
+      <view class="btm">
+        {{item.validateTimeDesc}}
+      </view>
+
+      <view class="tag">
+        <image src="../../assets/images/youhuiquan_biaoqian01.png"></image>
+        <view class="num">{{item.couponNumber}}张</view>
+      </view>
+    </view>
+  </view>
+ </view>
+ 
+</view>

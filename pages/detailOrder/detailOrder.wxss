@@ -1,0 +1,89 @@
+/* pages/detailOrder/detailOrder.wxss */
+.container{
+  width: 100%;
+  height: 100vh;
+  font-size: 32rpx;
+  background-color: #f4f6f8;
+  padding-top: 40rpx;
+}
+
+image{
+  width: 50rpx;
+  height: 50rpx;
+}
+
+.wrapper{
+  padding: 50rpx;
+  margin: 0 30rpx;
+  background-color: #fff;
+}
+
+.start-address{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 50rpx;
+}
+
+.end-address{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 50rpx;
+}
+
+.time{
+  margin-bottom: 60rpx;
+}
+
+.driver-info{
+  padding-bottom: 50rpx;
+  margin-bottom: 50rpx;
+  border-bottom: 1rpx solid #333;
+}
+
+.brief-info{
+  display: flex;
+}
+
+.photo{
+  width: 100rpx;
+  height: 100rpx;
+  margin-right: 20rpx
+}
+
+.text-wrapper{
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 30rpx;
+}
+
+.car-num{
+  font-size: 24rpx;
+}
+
+.car-info{
+  margin-left: 115rpx;
+  font-size: 24rpx;
+}
+
+.footer{
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 20rpx;
+}
+
+.cancle-trip{
+  margin-bottom: 50rpx;
+}
+
+.price{
+  font-size: 40rpx;
+  margin-top: -3rpx;
+}
+
+.price-num{
+  font-weight: bold;
+}

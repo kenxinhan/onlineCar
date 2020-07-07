@@ -1,0 +1,13 @@
+<loading hidden="{{hiddenLoading}}">加载中...</loading>
+<block wx:if="{{!phoneLogin}}">
+	<view class="banner">
+		<image src="../../assets/images/banner.jpg"></image>
+	</view>
+
+	<view class="authBox">
+		<button class="loginBtn" open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber">
+			<image src="../../assets/images/wx.png"></image>
+			<text>微信用户一键登录</text>
+		</button>
+	</view>
+</block>

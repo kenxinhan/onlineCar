@@ -1,0 +1,36 @@
+<!--pages/useCartDetail/useCartDetail.wxml-->
+<view class="container">
+	<view class="address">
+		<view class="start" wx:if="{{isStartShow}}">
+			<view class="left">
+				<image class="circle" src="../../assets/images/circle.png"></image>
+				<text class="cont"> {{address.strAddress}}</text>
+			</view>
+		</view>
+
+		<view class="next bus-strat {{!isStartShow ? 'no-margin' : ''}}">
+			<view class="left">
+				<image class="circle" src="../../assets/images/circle.png"></image>
+				<text class="cont"> {{address.busStrAddress}}</text>
+			</view>
+			<image class="arrow" src="../../assets/images/nav-arrow.png"></image>
+		</view>
+
+		<view class="next bus-end">
+			<view class="left">
+				<image class="circle" src="../../assets/images/circle.png"></image>
+				<text class="cont"> {{address.busEndAddress}}</text>
+			</view>
+			<image class="arrow" src="../../assets/images/nav-arrow.png"></image>
+		</view>
+
+		<view class="next end" wx:if="{{isEndShow}}">
+			<view class="left">
+				<image class="circle" src="../../assets/images/circle.png"></image>
+				<text class="cont"> {{address.endAddress}}</text>
+			</view>
+		</view>
+
+    <view class="pre-time">预估时间: {{address.time}}</view>
+	</view>
+</view>
