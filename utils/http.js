@@ -1,5 +1,7 @@
 const BASE_URL = require("./BASE_URL")
 var baseUrl = BASE_URL.BASE_URL //配置基础url
+let timer = null;
+
 
 /**
  * 供外部post请求调用  
@@ -27,6 +29,7 @@ function get(url, params, header, onSuccess, onFailed) {
 
 
 function request(url, params, method, header, onSuccess, onFailed) {
+  let hasToast = false;
   wx.showLoading({
     title: '加载中...'
   })
@@ -42,68 +45,97 @@ function request(url, params, method, header, onSuccess, onFailed) {
       console.log('响应数据：  ', res.data)
       if (res.data.code === '1') {
         if (res.statusCode == 200) {
+          wx.removeStorageSync('needLogin')
           onSuccess(res.data); //request success
         } else {
           onFailed(res.data.message); //request failed
         }
       } else if (res.data.code === '100' || res.data.code === '101') {
-        let timer = null;
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-          wx.showToast({
-            title: res.data.message,
-            icon:'none',
-            duration:2000,
-            // showCancel: false,
-            success(res) {
-              setTimeout(function () {
-                wx.navigateTo({
-                  url: '/user_center/pages/login/login',
+        // if(!wx.getStorageSync('needLogin')){
+          if(timer) clearTimeout(timer);
+          wx.setStorageSync('needLogin', '1')
+          timer = setTimeout(() => {
+            wx.showToast({
+              title: res.data.message,
+              icon:'none',
+              duration:3000,
+              success() {
+                hasToast = true;
+                setTimeout(function () {
+                  wx.navigateTo({
+                    url: '/user_center/pages/login/login',
+                  })
+                }, 500)
+              }
+            })
+          }, 500)
+        // }
+      } else if (res.data.code === '102') {
+        if(!wx.getStorageSync('needLogin')){
+          wx.setStorageSync('needLogin', '1')
+          wx.showModal({
+            content: res.data.message,
+            cancelText: '联系客服',
+            success(res1) {
+              hasToast = true;
+              if(res1.confirm){
+                wx.clearStorageSync();
+                wx.reLaunch({
+                  url: '/pages/index/index',
                 })
-              }, 800)
+              }else{
+                wx.makePhoneCall({
+                  phoneNumber: wx.getStorageSync('servicePhone'),
+                  success() {
+                    console.log('拨打成功')
+                  },
+                  fail: function () {
+                    console.log('拨打失败')
+                  }
+                })
+              }
             }
           })
-        }, 1000)
-      } else if (res.data.code === '102') {
-        console.log(res.data.message)
-        wx.showModal({
-          content: res.data.message,
-          cancelText: '联系客服',
-          success() {
-            wx.clearStorageSync();
-            wx.redirectTo({
-              url: '/pages/index/index',
-            })
-          }
-        })
-      } else {
+        }
+      } else{
+        // wx.hideLoading()
         wx.showToast({
           title: res.data.message,
           icon: 'none',
-          duration:2000,
+          duration:3000,
           success() {
+            hasToast = true;
             setTimeout(function () {
               onFailed(res);
-            }, 800)
+            }, 500)
           }
         })
+        
+        // if(!wx.getStorageSync('needLogin')){
+        //   wx.setStorageSync('needLogin', '1')
+        // }
       }
     },
     fail(error) {
       wx.showToast({
         title: error,
-        duration:2000,
+        duration:3000,
         icon: 'none',
         success() {
+          hasToast = true;
           setTimeout(function () {
+            console.log(err)
             onFailed(error);
-          }, 800)
+          }, 500)
         }
       })
     },
     complete() {
       setTimeout(() => {
-        wx.hideLoading()
+        let timer = hasToast ? 3000 : 500;
+        setTimeout(() => {
+          wx.hideLoading()
+        }, timer);
       }, 500);
     }
   })

@@ -1,5 +1,8 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "slideCoupon":"/components/slideCoupon/slideCoupon",
+    "integralExchangeModal":"/components/integralExchangeModal/integralExchangeModal"
+  },
     "backgroundTextStyle":"dark",
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "确认呼叫",

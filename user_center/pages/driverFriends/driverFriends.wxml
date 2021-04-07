@@ -1,6 +1,6 @@
 <view class="container">
 	<view class="bg" wx:if="{{noFriends}}">
-		<image src="../../assets/images/no-friend.png"></image>
+		<image src="http://scapp.xysc16.com/upload/wmp/imgs/no-friend.png"></image>
 		<view>您还没有好友司机</view>
 		<view>请先添加好友司机</view>
 	</view>
@@ -9,7 +9,7 @@
 	<block wx:for="{{driver}}" wx:key="index" >
 			<view class="item" bindlongpress="delFriend" data-id="{{item.driverNo}}">
 			<view class="pt">
-				<image class="photo" src="../../assets/images/driver.png"></image>
+				<image class="photo" src="http://scapp.xysc16.com/upload/wmp/imgs/driver.png"></image>
 			</view>
 			
 			<view class="driver-info">

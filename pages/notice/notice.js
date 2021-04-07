@@ -8,6 +8,7 @@ Page({
   data: {
     noticeList: null,
     allRead:false,
+    noMessage:false
   },
 
   onLoad: function (options) {
@@ -19,14 +20,20 @@ Page({
   },
 
   getNoticeList() {
-    http.postRequest("/passenger/message/getAllMessageType", '', wx.getStorageSync('header'), res => {
+    http.postRequest("/v1/passenger/message/getAllMessageType", '', wx.getStorageSync('header'), res => {
       console.log('消息中心', res)
       if (res.code === '1') {
-        let allRead = res.content.every(val=>val.num === 0)
-        this.setData({
-          noticeList:res.content,
-          allRead,
-        })
+        if(res.content.length === 0){
+          this.setData({
+            noMessage:true
+          })
+        }else{
+          let allRead = res.content.every(val=>val.num === 0)
+          this.setData({
+            noticeList:res.content,
+            allRead,
+          })
+        }
       }
     }, err => {
       console.log(err)
@@ -35,7 +42,7 @@ Page({
 
   hasRead(){
     if(!this.data.allRead){
-      http.postRequest("/passenger/message/updateMessageReadState?messageTypeId=0", {}, wx.getStorageSync('header'), res =>{
+      http.postRequest("/v1/passenger/message/updateMessageReadState?messageTypeId=0", {}, wx.getStorageSync('header'), res =>{
         console.log('全部已读：',res)
         if(res.code === '1'){
           this.getNoticeList()

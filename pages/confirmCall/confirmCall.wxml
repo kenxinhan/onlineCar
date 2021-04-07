@@ -1,17 +1,11 @@
 <view class="page">
-  <map id="myMap"
-  style="width:{{ScreenTotalW}}rpx;height:{{ScreenTotalH}}rpx;"
-  longitude="{{longitude}}" 
-  latitude="{{latitude}}" 
-  polyline="{{polyline}}" 
-  markers="{{markers}}" 
-  controls="{{controls}}"
-  include-points='{{points}}'
-  show-location="true"
-  > 
-    <cover-view class="current-mylocation-box">
-      <cover-image bindtap="getMyLocation" class="current-mylocation" src="../../assets/images/location.png"></cover-image>    
-    </cover-view>
+  <map id="myMap" style="width:{{ScreenTotalW}}rpx;height:{{ScreenTotalH}}rpx;" longitude="{{longitude}}"
+    latitude="{{latitude}}" polyline="{{polyline}}" markers="{{markers}}" controls="{{controls}}"
+    include-points='{{points}}' show-location="true">
+    <view class="current-mylocation-box">
+      <image bindtap="getMyLocation" class="current-mylocation" src="http://scapp.xysc16.com/upload/wmp/imgs/location.png">
+      </image>
+    </view>
   </map>
 
   <view class="container">
@@ -20,7 +14,7 @@
         <view wx:if="{{isAppointment}}" class="appointment-time">
           <view class="ap_tit">预约</view>
           <view class="ap_r">
-            <image src="../../assets/images/time.png"></image>
+            <image src="http://scapp.xysc16.com/upload/wmp/imgs/time.png"></image>
             <view class="start-date">{{startDate}}</view>
           </view>
         </view>
@@ -33,30 +27,62 @@
             <view class="info_loca-line"></view>
           </view>
         </view>
-        <block wx:if="{{!longModal}}">             
-          <view class="cost color-red">
-            <view wx:if="{{totalPrice}}" bindtap="bindPriceDetail">
-              <view class="big-price">约 <text class="cost-text_num">{{totalPrice}}</text> 元 <image class="p_arrow" src="../../assets/images/common_btn_ arrow_orange.png"></image> </view>
-              <view class="preferentialPrice" wx:if="{{preferentialPrice}}">(已优惠{{preferentialPrice}}元)</view>
+        <block wx:if="{{!longModal}}">
+          <view wx:if="{{taxi}}" class="cost color-red">
+            <view class="big-price">打表计价</view>
+            <view class="preferentialPrice">实际用车车费金额根据计价器计价为准</view>
+          </view>
+
+          <view wx:else class="cost color-red">
+            <view wx:if="{{totalPrice}}">
+              <view class="big-price" bindtap="bindPriceDetail">约 <text class="cost-text_num">{{totalPrice}}</text> 元
+                <image class="p_arrow" src="http://scapp.xysc16.com/upload/wmp/imgs/common_btn_ arrow_orange.png"></image>
+              </view>
+              <view class="preferentialPrice" wx:if="{{preferentialPrice}}">
+                <view wx:if="{{curCouponData.couponDescribe}}" class="choose-coupon-text">{{curCouponData.couponDescribe}}</view>
+                <view class="choose-coupon-btn" bindtap="chooseCoupon">选择优惠券</view>
+              </view>
             </view>
-            <view wx:if="{{!totalPrice}}" bindtap="reGetPrice">
+            <view wx:else bindtap="reGetPrice">
               <text class="cost-text">重新获取预估价</text>
-            </view>           
+            </view>
           </view>
         </block>
       </view>
       <view class="btnBox">
-          <button class="next-step"  bindtap="callCar">确认呼叫</button>
+        <button style="color:#fff" class="next-step" bindtap="callCar">确认呼叫</button>
+        <!-- <button style="color:#fff" class="next-step {{!hideCityNoService?'gray-btn':''}}" bindtap="callCar" disabled="{{!hideCityNoService}}">确认呼叫</button> -->
       </view>
     </view>
   </view>
 
-  <modal title="上车地点距离您当前位置较远,请确认乘车信息" confirm-text="确认叫车" cancel-text="重新修改" hidden="{{modalHidden}}" 
-         bindconfirm="modalConfirm" bindcancel="modalCancel">
-       
-        <text class="text-list">上车点:</text>
-        <text class="text-list">{{strAddress}}</text>
-        <text class="text-list">距离:</text>
-        <text class="text-list">{{walkingDis}}m</text>
+  <modal title="上车地点距离您当前位置较远,请确认乘车信息" confirm-text="确认叫车" cancel-text="重新修改" hidden="{{modalHidden}}"
+    bindconfirm="modalConfirm" bindcancel="modalCancel">
+
+    <text class="text-list">上车点:</text>
+    <text class="text-list">{{strAddress}}</text>
+    <text class="text-list">距离:</text>
+    <text class="text-list">{{walkingDis}}m</text>
   </modal>
+
+  <!-- 好友司机点击用车出现司机信息 -->
+  <view class="use-cart-info" wx:if="{{fromFriendUseCart}}">
+    <view class="name">{{driverFriend.name}}</view>
+    <view class="cart-num">编号: {{driverFriend.cart_no}}</view>
+  </view>
+  <!-- 城市未开通服务 -->
+  <view class="city-no-service" hidden="{{hideCityNoService}}">当前区域未开通服务，敬请期待</view>
+
+  <movable-area class="movable-area" wx:if="{{showMovable}}">
+    <movable-view class="movable-view" direction="all" x="350" y="140" catchtap="showSlideCoupon">
+      <image class="integral-img" src="http://scapp.xysc16.com/upload/wmp/imgs/jifen2.gif"></image>
+    </movable-view>
+  </movable-area>
+
+  <slideCoupon wx:if="{{showCoupon}}" class="slide-comp" fromIcon="{{isFromIcon}}"  params="{{slideCouponParams}}"
+    hasChooseId="{{hasChooseId}}" showCoupon="{{showCoupon}}" bindCouponState="couponStateHandle"
+    bindHasChooseCouponData="onHasChooseCouponData" bindExchangeItem="onExchangeItem"></slideCoupon>
+
+  <integralExchangeModal wx:if="{{showIntegralExchangeModal}}" modalData="{{exchangeItem}}"
+    abnormalData="{{abnormalData}}" isBack="{{isBack}}" bindCoverState="CoverState"></integralExchangeModal>
 </view>

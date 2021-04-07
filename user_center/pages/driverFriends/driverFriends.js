@@ -24,8 +24,7 @@ Page({
       pageSize:30,
       currentPage:1,
     }
-    http.getRequest("/passenger/friendDriver/list",data,wx.getStorageSync('header'), res =>{
-      console.log('好友：',res)
+    http.getRequest("/v1/passenger/friendDriver/list",data,wx.getStorageSync('header'), res =>{
       if(res.code === '1' && res.content.length !== 0){
         this.setData({
           noFriends:false,
@@ -76,8 +75,7 @@ Page({
 
   reqDelFriend(driverNo){
     let newDriver;
-    http.postRequest("/passenger/friendDriver/attentionOrCancel?driverNo="+driverNo,'',wx.getStorageSync('header'),res=>{
-      console.log('删除好友：',res)
+    http.postRequest("/v1/passenger/friendDriver/attentionOrCancel?driverNo="+driverNo,'',wx.getStorageSync('header'),res=>{
       if(res.code === '1' && res.content.length !== 0){
         this.setData({
           showDel:null,

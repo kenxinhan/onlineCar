@@ -5,7 +5,7 @@
         <image class="head_img" src="{{avatar}}"></image>
       </view>
       <view wx:else>
-        <image class="head_img" src="../../assets/images/touxiang.png"></image>
+        <image class="head_img" src="http://scapp.xysc16.com/upload/wmp/imgs/touxiang.png"></image>
       </view>     
       </view>
       <text class="head_nick">{{nickName}}</text>
@@ -34,9 +34,18 @@
 							</view>
 							<text class="weui-cell__ft"></text>
 						</a>
+						<a class="weui-cell weui-cell_active weui-cell_access weui-cell_example" bindtap="myIntegral">
+							<view class="weui-cell__hd">
+                <image src="../../assets/images/icon-jifen.png"style="width: 20px; height: 20px; margin-right: 16px; display: block;"></image>
+              </view>
+							<view class="weui-cell__bd weui-cell_primary">
+								<view class="font-28">我的积分</view>
+							</view>
+							<text class="weui-cell__ft"></text>
+						</a>
             <a class="weui-cell weui-cell_active weui-cell_access weui-cell_example" bindtap="toService">
 							<view class="weui-cell__hd">
-                <image src="../../assets/images/icon-kefu.png"style="width: 20px; height: 20px; margin-right: 16px; display: block;"></image>
+                <image src="http://scapp.xysc16.com/upload/wmp/imgs/icon-kefu.png"style="width: 20px; height: 20px; margin-right: 16px; display: block;"></image>
               </view>
 							<view class="weui-cell__bd weui-cell_primary">
 								<view class="font-28">客服</view>

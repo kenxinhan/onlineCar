@@ -1,5 +1,6 @@
 <view class="container">
 	<view class="priceBox">
+		<view class="header">预估详情</view>
 		<view class="listBox" wx:for="{{costList}}" wx:key="index">
 			<view class="list-title">
 				<text class="title-28">{{item.feeName}}</text>

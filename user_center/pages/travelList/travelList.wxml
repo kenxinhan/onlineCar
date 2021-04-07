@@ -1,17 +1,13 @@
-<!-- <view class="weui-loadmore" wx:if='{{isRefreshing}}'>
-  <view class="weui-loading"></view>
-  <view class="weui-loadmore-tips">正在刷新...</view>
-</view> -->
-
 <view class="container">
  <scroll-view wx:if="{{listData}}"  scroll-y="true" class='hiddenBar' lower-threshold="100" style="height: 100vh"  bindscrolltolower="scrollToLower">
-          <view class="listBox" wx:for="{{listData}}" wx:for-index="id"  wx:for-item="item" wx:key="index" bindtap="orderDetail" data-order_no="{{item.nodeOrderNos[0]}}" data-status="{{item.status}}">
+          <view class="listBox" wx:for="{{listData}}" wx:for-index="id"  wx:for-item="item" wx:key="index" bindtap="orderDetail" data-item="{{item}}" data-status="{{item.orderStateName}}">
+            <!-- data-order_no="{{item.nodeOrderNos[0]}}"  -->
               <view class="flex-title font-28">
-                <text class="font-30">{{item.typeTitle}}</text>
-                <text class="status">{{item.status}}<text class="iconRight"></text></text>
+                <text class="font-30">{{item.businessName}}</text>
+                <text class="status">{{item.orderStateName}}<text class="iconRight"></text></text>
               </view>
               <view class="list-time font-28">
-                <image src="../../assets/images/time.png"></image>
+                <image src="http://scapp.xysc16.com/upload/wmp/imgs/time.png"></image>
                 <text class="time">{{item.time}}</text>
               </view>
               <view class="list-adress font-28">
@@ -29,8 +25,8 @@
         <view wx:if="{{loadingFailed}}">数据加载失败,请重试</view>
       </view>
  </scroll-view> 
- <view wx:else class="bg">
+ <view wx:if="{{noOrder}}" class="bg">
   <image class="bg-img" src="../../assets/images/no_list.png"></image>
-  <view class="bg-cont">暂无行程记录~</view>
+  <view class="bg-cont">近期没有行程记录~</view>
  </view>
 </view>

@@ -5591,40 +5591,6 @@ module.exports = {
           ]
       },
       {
-          "id": "320500",
-          "name": "苏州",
-          "fullname": "苏州市",
-          "pinyin": [
-              "su",
-              "zhou"
-          ],
-          "location": {
-              "lat": 31.29834,
-              "lng": 120.58319
-          },
-          "cidx": [
-              711,
-              719
-          ]
-      },
-      {
-          "id": "330100",
-          "name": "杭州",
-          "fullname": "杭州市",
-          "pinyin": [
-              "hang",
-              "zhou"
-          ],
-          "location": {
-              "lat": 30.27415,
-              "lng": 120.15515
-          },
-          "cidx": [
-              773,
-              785
-          ]
-      },
-      {
           "id": "440100",
           "name": "广州",
           "fullname": "广州市",
@@ -5659,21 +5625,22 @@ module.exports = {
           ]
       },
       {
-          "id": "510100",
-          "name": "成都",
-          "fullname": "成都市",
-          "pinyin": [
-              "cheng",
-              "du"
-          ],
-          "location": {
-              "lat": 30.5702,
-              "lng": 104.06476
-          },
-          "cidx": [
-              1914,
-              1933
-          ]
-      }
+        "id": "411200",
+        "name": "三门峡",
+        "fullname": "三门峡市",
+        "pinyin": [
+            "san",
+            "men",
+            "xia"
+        ],
+        "location": {
+            "lat": 34.77261,
+            "lng": 111.2003
+        },
+        "cidx": [
+            1388,
+            1393
+        ]
+    },
   ]
 };

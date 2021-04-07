@@ -6,8 +6,8 @@ Page({
    * 页面的初始数据
    */
   data: {
-    areaCode:null,
-    costList:null,
+    areaCode: null,
+    costList: null,
   },
 
   /**
@@ -15,31 +15,32 @@ Page({
    */
   onLoad: function (opt) {
     console.log(opt)
-    let token = wx.getStorageSync('token') || '';
-    if(opt.valuationData){
+    if (opt.valuationData) {
       let valuationData = JSON.parse(opt.valuationData);
       let reqData = {
-        userLongitude:parseFloat(valuationData.strLng),
-        userLatitude:parseFloat(valuationData.strLat),
-        destinationLongitude:parseFloat(valuationData.endLng),
-        destinationLatitude:parseFloat(valuationData.endLat),
-        businessType:1
+        userLongitude: parseFloat(valuationData.strLng),
+        userLatitude: parseFloat(valuationData.strLat),
+        destinationLongitude: parseFloat(valuationData.endLng),
+        destinationLatitude: parseFloat(valuationData.endLat),
+        businessType: 1
       }
-      http.postRequest("/carOrder/passenger/lineValuation",reqData,{
-        'channel': 2, //请求来源 2-小程序
-        'appChannel': wx.getStorageSync('systemInfo').model, //systemInfo.brand, //app渠道
-        'platformType': 3, //systemInfo.platform,  //系统类型
-        'sysVersion': wx.getStorageSync('systemInfo').system, //操作系统版本
-        'token':token
-      },res=>{
-        console.log(res)
-        if(res.code === '1'){
+      http.postRequest("/v1/carOrder/passenger/lineValuation", reqData, wx.getStorageSync('header'), res => {
+        if (res.code === '1') {
           this.setData({
-            areaCode:res.content[0].areaCode,
-            costList:res.content[0].costList,
+            areaCode: res.content[0].areaCode,
           })
+          if (opt.replaceList) {
+            this.setData({
+              costList:JSON.parse(opt.replaceList)
+            })
+          } else {
+            console.log(2)
+              this.setData({
+                costList: res.content[0].costList,
+              })
+          }
         }
-      },err=>{
+      }, err => {
         console.log(err)
       })
     }
@@ -47,7 +48,7 @@ Page({
 
   toPriceRules() {
     wx.navigateTo({
-      url: '/pages/priceRules/priceRules?code='+this.data.areaCode,
+      url: '/pages/priceRules/priceRules?code=' + this.data.areaCode + '&from=callCar',
     })
   },
 })

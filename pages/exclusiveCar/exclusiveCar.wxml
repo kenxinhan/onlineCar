@@ -1,0 +1,105 @@
+<view class="container">
+	<view class="top">
+		<view class="city-left">
+			当前所在城市：
+			<text>{{curCity}}</text>
+		</view>
+		<view class="city-right" bindtap="reChooseLine">
+			<image src="http://scapp.xysc16.com/upload/wmp/imgs/line-rechoose.png"></image>
+			<text> 重新选择</text>
+		</view>
+	</view>
+
+	<!-- 时间包车 -->
+	<view wx:if="{{timeMode}}" class="middle">
+		<view class="city-name">用车城市： <text>{{lineInfo.cityName}}</text></view>
+		<view class="start-address">上车点： <text class="str-name" bindtap="chooseStrAddress"
+				style="width:490rpx;">{{strAddress}}</text></view>
+		<view class="time">上车时间：
+			<picker class='time-picker' mode="multiSelector" bindchange="bindStartMultiPickerChange" bindtap='pickerTap'
+				bindcolumnchange="bindMultiPickerColumnChange" value="{{multiIndex}}" range="{{multiArray}}">{{startDate}}
+			</picker>
+		</view>
+		<view class="date-num">包车天数：
+			<view class="num-click">
+				<image class="num-des"
+					src="{{needDateNum <= 1 ? 'http://scapp.xysc16.com/upload/wmp/imgs/des-btn-disable.png':'http://scapp.xysc16.com/upload/wmp/imgs/des-btn.png'}}"
+					bindtap="desNum"></image>
+				<image class="num-add"
+					src="{{needDateNum >= lineInfo.maxDayNumber ? 'http://scapp.xysc16.com/upload/wmp/imgs/add-btn-disable.png':'http://scapp.xysc16.com/upload/wmp/imgs/add-btn.png'}}"
+					bindtap="addNum"></image>
+				<view class="num">{{needDateNum}}</view>
+			</view>
+		</view>
+		<view class="long-time">包车时长/天：
+			<picker class="long-time-picker" bindchange="loneTimeChoose" value="{{rangeIdx}}" range="{{rangeArray}}"
+				range-key="{{'rulesName'}}">{{rangeArray[rangeIdx].rulesName}}</picker>
+		</view>
+		<view class="people-num">最大可乘车人数： {{maxPeopleNum}}人</view>
+	</view>
+
+	<!-- 线路包车 -->
+	<view wx:elif="{{lineMode}}" class="middle">
+		<view class="line-name">
+			<view class="start-line">{{strLineName}}</view>
+			<image src="http://scapp.xysc16.com/upload/wmp/imgs/line_mr.png" style="width:60rpx;height:60rpx;"></image>
+			<view class="end-line">{{endLineName}}</view>
+		</view>
+		<view class="start-address">上车点：
+			<text class="str-name" bindtap="chooseStrAddress" style="width:500rpx;margin-right:20rpx;">{{strAddress}}</text>
+		</view>
+		<view class="time">上车时间：
+			<picker class='time-picker' mode="multiSelector" bindchange="bindStartMultiPickerChange" bindtap='pickerTap'
+				bindcolumnchange="bindMultiPickerColumnChange" value="{{multiIndex}}" range="{{multiArray}}">{{startDate}}
+			</picker>
+		</view>
+		<view wx:if="{{!notBack}}">
+			<text>需要返程： </text>
+			<switch style="zoom:0.65;margin-right:10rpx" color="#FF8008" checked="{{needBack}}" disabled="{{notBack}}"
+				bindchange="switchStatus"></switch>
+		</view>
+		<view class="people-num">最大可乘车人数： {{maxPeopleNum}}人</view>
+	</view>
+
+	<view class="bottom">
+		<block wx:if="{{lineMode}}">
+			<view class="tips-title">按线路包车采用线路整价计费方式</view>
+			<view class="tips-cont">包车行程将根据您的用车计算价格，按线路计费。行程中有一定的免费等待时长赠送，超出部分根据时间收费梯度进行计费。如在中途下车按照全程费用收取。</view>
+		</block>
+		<block wx:elif="{{timeMode}}">
+			<view class="tips-title">按时间包车采用整车时长计费方式</view>
+			<view class="tips-cont">包车行程将根据您选择的用车时间所在区间计算价格。包车时长指每天可使用的时长和公里数额度。超出部分和公里数根据不同时间范围支付额外费用。如在中途下车按照全程费用收取。</view>
+		</block>
+	</view>
+
+	<!-- 支付按钮 -->
+	<view wx:if="{{startDate !== '请选择时间'}}" class="pay">
+		<view class="btm-top">
+			<view class="price">
+				<view class="real-price">共{{realPrice}}元</view>
+				<view class="price-r">
+					<view class="price-rt">立省{{reducePrice}}元</view>
+					<view class="del-price">￥{{delPrice}}</view>
+				</view>
+			</view>
+			<view class="price-coupon">
+				<view wx:if="{{couponDescribe}}" class="choose-coupon-text">{{couponDescribe}}</view>
+				<view class="choose-coupon-btn" bindtap="chooseCoupon">选择优惠券</view>
+			</view>
+		</view>
+		<button class="pay-btn" bindtap="callCar">确认包车</button>
+	</view>
+
+	<movable-area class="movable-area">
+		<movable-view class="movable-view" direction="all" x="350" y="140" catchtap="showSlideCoupon">
+			<image class="integral-img" src="http://scapp.xysc16.com/upload/wmp/imgs/jifen2.gif"></image>
+		</movable-view>
+	</movable-area>
+
+	<slideCoupon wx:if="{{showCoupon}}" class="slide-comp" fromIcon="{{isFromIcon}}" params="{{slideCouponParams}}"
+		hasChooseId="{{hasChooseId}}" showCoupon="{{showCoupon}}" bindCouponState="couponStateHandle"
+		bindHasChooseCouponData="onHasChooseCouponData" bindExchangeItem="onExchangeItem"></slideCoupon>
+
+	<integralExchangeModal wx:if="{{showIntegralExchangeModal}}" modalData="{{exchangeItem}}"
+		abnormalData="{{abnormalData}}" isBack="{{isBack}}" bindCoverState="CoverState"></integralExchangeModal>
+</view>

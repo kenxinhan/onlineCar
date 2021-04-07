@@ -1,69 +1,112 @@
 {
-	"description": "项目配置文件",
-	"packOptions": {
-		"ignore": []
-	},
-	"setting": {
-		"urlCheck": true,
-		"es6": true,
-		"enhance": false,
-		"postcss": true,
-		"preloadBackgroundData": false,
-		"minified": true,
-		"newFeature": true,
-		"coverView": true,
-		"nodeModules": true,
-		"autoAudits": false,
-		"showShadowRootInWxmlPanel": true,
-		"scopeDataCheck": false,
-		"uglifyFileName": false,
-		"checkInvalidKey": true,
-		"checkSiteMap": true,
-		"uploadWithSourceMap": true,
-		"babelSetting": {
-			"ignore": [],
-			"disablePlugins": [],
-			"outputPath": ""
-		},
-		"useCompilerModule": false,
-		"userConfirmedUseCompilerModuleSwitch": false,
-		"compileHotReLoad": false,
-		"useIsolateContext": true
-	},
-	"compileType": "miniprogram",
-	"libVersion": "2.11.0",
-	"appid": "wxa73349d291f4d727",
-	"projectname": "%E7%BD%91%E7%BA%A6%E8%BD%A6-%E8%85%BE%E8%AE%AFAPI",
-	"debugOptions": {
-		"hidedInDevtools": []
-	},
-	"isGameTourist": false,
-	"simulatorType": "wechat",
-	"simulatorPluginLibVersion": {},
-	"condition": {
-		"search": {
-			"current": -1,
-			"list": []
-		},
-		"conversation": {
-			"current": -1,
-			"list": []
-		},
-		"plugin": {
-			"current": -1,
-			"list": []
-		},
-		"game": {
-			"currentL": -1,
-			"list": []
-		},
-		"gamePlugin": {
-			"current": -1,
-			"list": []
-		},
-		"miniprogram": {
-			"current": -1,
-			"list": []
-		}
-	}
+  "description": "项目配置文件",
+  "packOptions": {
+    "ignore": []
+  },
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "preloadBackgroundData": false,
+    "minified": true,
+    "newFeature": true,
+    "coverView": true,
+    "nodeModules": true,
+    "autoAudits": false,
+    "showShadowRootInWxmlPanel": true,
+    "scopeDataCheck": false,
+    "uglifyFileName": false,
+    "checkInvalidKey": true,
+    "checkSiteMap": true,
+    "uploadWithSourceMap": true,
+    "compileHotReLoad": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "useIsolateContext": true,
+    "useCompilerModule": false,
+    "userConfirmedUseCompilerModuleSwitch": false,
+    "useMultiFrameRuntime": false,
+    "useApiHook": true,
+    "enableEngineNative": false,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "2.11.0",
+  "appid": "wxa73349d291f4d727",
+  "projectname": "%E7%BD%91%E7%BA%A6%E8%BD%A6-%E8%85%BE%E8%AE%AFAPI",
+  "debugOptions": {
+    "hidedInDevtools": []
+  },
+  "isGameTourist": false,
+  "simulatorType": "wechat",
+  "simulatorPluginLibVersion": {},
+  "condition": {
+    "plugin": {
+      "list": []
+    },
+    "game": {
+      "list": []
+    },
+    "gamePlugin": {
+      "list": []
+    },
+    "miniprogram": {
+      "list": [
+        {
+          "name": "优惠券上滑组件",
+          "pathName": "components/slideCoupon/slideCoupon",
+          "query": "",
+          "scene": null
+        },
+        {
+          "name": "我的积分",
+          "pathName": "user_center/pages/integral/integral",
+          "query": "",
+          "scene": null
+        },
+        {
+          "name": "积分商品详情",
+          "pathName": "user_center/pages/integralGoodsDetail/integralGoodsDetail",
+          "query": "",
+          "scene": null
+        },
+        {
+          "name": "积分-我的订单",
+          "pathName": "user_center/pages/integralOrderList/integralOrderList",
+          "query": "",
+          "scene": null
+        },
+        {
+          "name": "积分-积分明细",
+          "pathName": "user_center/pages/integralDetail/integralDetail",
+          "query": "",
+          "scene": null
+        },
+        {
+          "name": "driving_status/pages/travalEnd/travalEnd",
+          "pathName": "driving_status/pages/travalEnd/travalEnd",
+          "query": "",
+          "scene": null
+        },
+        {
+          "name": "driving_status/pages/orderService/orderService",
+          "pathName": "driving_status/pages/orderService/orderService",
+          "query": "",
+          "scene": null
+        },
+        {
+          "name": "pages/remoteLineCallCar/remoteLineCallCar",
+          "pathName": "pages/remoteLineCallCar/remoteLineCallCar",
+          "query": "businesstype=3&driver=1002",
+          "scene": null
+        }
+      ]
+    }
+  }
 }

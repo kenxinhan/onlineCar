@@ -1,20 +1,15 @@
 <view class="container">
-	<!-- <block>
-    <view class="item" wx:for="{{list}}" wx:key="index" data-id="{{item.id}}">
-      <view class="tit">{{item.title}}</view>
-      <view class="cont">{{item.messageInfo}}</view>
-      <view class="time">{{item.timeDescribe}}</view>
-      <view class="tag-new" wx:if="{{item.readState == 0}}">新</view>
-    </view>
-  </block> -->
-
 	<scroll-view scroll-y lower-threshold="100" bindscrolltolower="scrollToLower" style="height: 100vh;">
 		<view class="item" wx:for="{{list}}" wx:key="index" data-id="{{item.id}}">
 			<view class="tit">{{item.title}}</view>
 			<view class="cont">{{item.messageInfo}}</view>
 			<view class="time">{{item.timeDescribe}}</view>
-			<view class="tag-new" wx:if="{{item.readState == 0}}">新</view>
+			<view class="tag-new" wx:if="{{item.readState == 0}}">
+				<image src="http://scapp.xysc16.com/upload/wmp/imgs/new-notice-bg.png"></image>
+				<text>新</text>
+			</view>
 		</view>
+
 		<view style="text-align: center;margin: 10px;">
 			<view wx:if="{{loading}}">加载中...</view>
 			<view wx:if="{{noMore}}">没有更多了</view>

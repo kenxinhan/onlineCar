@@ -1,0 +1,9 @@
+<view class="container">
+  <view class="cur-city">当前城市：{{currentCity}}</view>
+  <view class="list" wx:for="{{list}}" wx:key="index">
+    <view class="title">{{item.title}}</view>
+    <view class="sub-list" wx:for="{{item.remoteStationList}}" wx:for-item="subItem" wx:for-index="idx" wx:key="idx">
+      <view class="sub-title" bindtap="chooseStation" data-item="{{subItem}}">{{subItem.stationName}}</view>
+    </view>
+  </view>
+</view>

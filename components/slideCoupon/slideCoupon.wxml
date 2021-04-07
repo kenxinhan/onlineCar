@@ -1,0 +1,39 @@
+<view id="slide-coupon" class="slide-coupon" wx:if="{{showCoupon}}">
+  <view class="inner">
+      <view class="title">
+        <text>{{fromIcon ? '积分兑换' : '选择优惠券'}}</text>
+        <view class="del" catchtap="close">
+          <image class="del-img" src="http://scapp.xysc16.com/upload/wmp/imgs/delete.png"></image>
+        </view>
+      </view>
+      <scroll-view wx:if="{{hasCoupon}}" class="scroll-box" scroll-y="true" bindscrolltolower="scrollToLower">
+        <view class="item" wx:for="{{listData}}" wx:key="index">
+          <view class="top">
+            <block wx:if="{{fromIcon}}">
+              <view class="l">
+                <image src="http://scapp.xysc16.com/upload/wmp/imgs/coupon.png" style="width:80rpx;height:80rpx;"></image>
+                <view class="item-name">
+                  <view>{{item.couponName}}</view>
+                  <view class="item-num">{{item.integralNumber}}积分</view>
+                </view>
+              </view>
+              <view class="r" bindtap="exchange" data-item="{{item}}">立即兑换</view>
+            </block>
+
+            <block wx:else>
+              <view class="l">
+                <image src="http://scapp.xysc16.com/upload/wmp/imgs/coupon.png" style="width:80rpx;height:80rpx;"></image>
+                <view class="item-name">{{item.couponName}}</view>
+              </view>
+              <view class="r {{item.couponId == curItemId ? 'cur-r' : ''}}" bindtap="tapUseBtn" data-item="{{item}}">{{item.couponId == curItemId ? '已选择' : '使用'}}</view>
+            </block>
+          </view>
+          <view class="btm">有效时间：{{item.timeDescribe}}</view>
+        </view>
+      </scroll-view>
+      <view class="no-coupon" wx:elif="{{!hasCoupon && !fromIcon}}">
+        <image src="http://scapp.xysc16.com/upload/wmp/imgs/no-coupon.png" style="width:300rpx;height:300rpx;margin-bottom:20rpx;"></image>
+        <view>暂时没有优惠券</view>
+      </view>
+  </view>
+</view>

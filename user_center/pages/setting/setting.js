@@ -1,3 +1,4 @@
+const app = getApp();
 // pages/setting/setting.js
 Page({
 
@@ -13,12 +14,6 @@ Page({
    */
   onLoad: function (options) {
   },
-
-  // location(){
-  //   wx.navigateTo({
-  //     url: '/user_center/pages/usedLocation/usedLocation',
-  //   })
-  // },
   
   about(){
     wx.navigateTo({
@@ -38,11 +33,9 @@ Page({
             success (res) {
               console.log("已退出登录");
               wx.removeStorageSync('token')
-              wx.login({
-                success(res) {
-                  wx.setStorageSync('code', res.code);
-                } 
-              })
+              wx.removeStorageSync('header')
+              app.globalData.clientDriving.end();
+              app.globalData.clientDriving=null;
               wx.reLaunch({
                 url: '/pages/index/index',
               })

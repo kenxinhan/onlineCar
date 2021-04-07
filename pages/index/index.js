@@ -1,51 +1,41 @@
 import http from '../../utils/http';
+import {
+  Base64
+} from 'js-base64';
+let mqtt = require('../../utils/mqtt.js');
+let client = null;
 let d30 = new Date().getTime() + 1800000;
-let d40 = new Date().getTime() + 2400000;
-var date = new Date(d30);
-var currentHours = date.getHours();
-var currentMinute = date.getMinutes();
-var QQMapWX = require('../../libs/qqmap-wx-jssdk.js');
-var qqmapsdk;
-qqmapsdk = new QQMapWX({
-  key: 'ACZBZ-XOJRU-AKQVD-BDUEX-2WJSZ-Y4BNN'
-});
-let SCREEN_WIDTH = 750
-let RATE = wx.getSystemInfoSync().screenHeight / wx.getSystemInfoSync().screenWidth
-const app = getApp()
+let date = new Date(d30);
+let weekday = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+let currentHours = date.getHours();
+let currentMinute = date.getMinutes();
+let toUserTimer = null;
+import qqmapsdk from '../../libs/qqMap';
+let SCREEN_WIDTH = 750;
+let RATE = wx.getSystemInfoSync().screenHeight / wx.getSystemInfoSync().screenWidth;
+const app = getApp();
+let mqtt1013timer = null;
+let mqtt1005timer = null;
+let curPageOnShow = false;
 
 Page({
   data: {
     fromScan: false,
     ScreenTotalW: SCREEN_WIDTH,
     ScreenTotalH: SCREEN_WIDTH * RATE - 440, //地图高度自适应 508 = 导航 + footer
-    currentTab: 1,
-    fixedLine: true,
-    cart: '网约车',
     navScrollLeft: 0,
+    currentTab: 0,
     isLoading: true,
     color: "#cccccc",
-    callCart: true,
     destination: '',
     startAddress: '',
-    index: '',
-    userInfo: {},
-    hasUserInfo: false,
-    canIUse: wx.canIUse('button.open-type.getUserInfo'),
     longitude: null,
     latitude: null,
     endLongitude: null,
     endLatitude: null,
     scale: 14,
     markers: [],
-    footerTabData: [{
-        id: 1,
-        title: '现在'
-      },
-      {
-        id: 2,
-        title: '预约'
-      },
-    ],
+    hideNowTab: false,
     canChooseStatus: false,
     changeTab: 1,
     showCoupon: false,
@@ -56,7 +46,7 @@ Page({
     canAppointment: false,
     startDate: "预约时间",
     multiArray: [
-      ['今天', '明天'],
+      ['今天', '明天', '后天'],
       [0, 1, 2, 3, 4, 5, 6],
       [0, 10, 20]
     ],
@@ -64,25 +54,54 @@ Page({
     showNotice: false,
     noticeCont: null,
     showCoupon: false,
-    driverImg: '../../assets/images/driver.png',
+    driverImg: 'http://scapp.xysc16.com/upload/wmp/imgs/driver.png',
     reqRecoverOrder: 0,
-    currentCity: null,
-    lineCityCode: null,
-    lineStartAddress: '起点起点',
-    lineDestination: '',
-    lineStartDate: '',
-    lineCurPerNum:1,
+    // 远程
+    fixedLine: false,
+    loading: false,
+    noMore: false,
+    usedLineList: null,
+    allLineList: null,
+    lineCurrentPage: 1,
+    hasCityLine: true,
+    // 包车
+    exclusiveCar: false,
+    EXC_city: '',
+    EXC_currentPage: 1,
+    EXC_lineList: null,
+    dateReqInfo: null,
+    friendsDriverType: null,
+    hideCityNoService: true,
+    currentBusinessType: 1,
+    integralMqttData: null,
+    showVipProgress: false,
+    mqttData1005:null,
   },
 
-  onLoad: function (opt) {
-    this.requestCart()
-    this.checkMySession()
-    console.log('indexLoad:', opt)
+  onLoad: async function (opt) {
+    console.log('indexopt:', opt)
+    await this.getCurrentLocation();
+
+
+    // 预约单跳转
     if (opt.hasYuYue) {
-      wx.showModal({
-        content: '预约订单已提交，请等待司机确认',
-        showCancel: false,
-      })
+      if (opt.hasYuYue == 1) {
+        wx.showModal({
+          content: '预约订单已提交，请等待司机确认',
+          showCancel: false,
+        })
+      }
+      if (opt.friendBusinessType == 10) {
+        this.setData({
+          currentTab: 3
+        })
+      } else if (opt.friendBusinessType == 5) {
+        this.setData({
+          isDriverFriends: true,
+          currentTab: 4,
+        })
+        this.reqFriendsList();
+      }
     }
     this.setData({
       scanDriverId: app.globalData.scanDriverId
@@ -90,11 +109,7 @@ Page({
 
     // 扫码进入
     if (opt.driver) {
-      console.log('driver：', opt.driver)
-      console.log('businesstype：', opt.businesstype)
-
       if (opt['amp;businesstype'] === '1' || opt.businesstype === '1') {
-        console.log('b1')
         this.setData({
           fromScan: true,
         })
@@ -103,7 +118,6 @@ Page({
           scanDriverId: opt.driver
         })
       } else if (opt['amp;businesstype'] === '2' || opt.businesstype === '2') {
-        console.log('b2')
         wx.redirectTo({
           url: '/pages/addFriends/addFriends?scanId=' + opt.driver,
         })
@@ -114,11 +128,6 @@ Page({
     if (opt.des === 'scan') {
       this.setData({
         fromScan: true,
-      })
-    }
-
-    if (this.data.fromScan) {
-      this.setData({
         ScreenTotalH: SCREEN_WIDTH * RATE - 400,
         destination: app.globalData.destination,
         endLatitude: app.globalData.endLatitude,
@@ -130,25 +139,31 @@ Page({
       })
     }
 
-
-
-
     // 好友用车点进
     if (opt.driverFriend) {
+      wx.setNavigationBarTitle({
+        title: '好友司机',
+      })
       this.setData({
         fromFriendUseCart: true,
         driverFriend: JSON.parse(opt.driverFriend),
         canAppointment: true,
-        canChooseStatus: true
+        canChooseStatus: true,
+        currentTab: 4,
+        friendsDriverType: opt.driverType,
+        ScreenTotalH: SCREEN_WIDTH * RATE - 400,
+        currentBusinessType:5
       })
-      app.globalData.friendDriverId = null;
-      app.globalData.friendDriverId = parseInt(this.data.driverFriend.cart_id);
+      this.dateReq();
+      app.globalData.friendDriver = null;
+      app.globalData.friendDriver = this.data.driverFriend;
       if (this.data.driverFriend.fromOffline) {
         app.globalData.nowOrFutureId = 2;
         this.setData({
           onlyAppointmentTime: true,
           changeTab: 2,
-          onlyNowTime: false
+          onlyNowTime: false,
+          hideNowTab: true
         })
       } else {
         this.setData({
@@ -157,6 +172,7 @@ Page({
           onlyNowTime: true
         })
       }
+      console.log('a')
     } else {
       this.setData({
         fromFriendUseCart: false,
@@ -166,20 +182,55 @@ Page({
       })
     }
 
+    if (opt['amp;from'] === 'scanFullToLine' || opt.from === 'scanFullToLine') {
+      this.setData({
+        currentTab: 1
+      })
+      if (this.data.currentTab === 1) {
+        this.setData({
+          fixedLine: true
+        })
+        app.globalData.lineStartAddress = '';
+        app.globalData.lineStartLat = '';
+        app.globalData.lineStartLng = '';
+        app.globalData.lineEndAddress = '';
+        app.globalData.lineEndLat = '';
+        app.globalData.lineEndLng = '';
+        await this.getCurrentLocation();
+        if (app.globalData.lineCityCode) {
+          this.setData({
+            lineCurrentPage: 1
+          })
+          this.remoteLineList(false)
+        } else {
+          console.log(app.globalData)
+        }
+        this.setData({
+          fixedLine: true,
+          currentCity: app.globalData.lineStartCity,
+        })
+      }
+    }else if(opt['amp;from'] === 'scanFullTaxi' || opt.from === 'scanFullTaxi'){
+      this.setData({
+        currentTab: 3
+      })
+    }
+
+    if (this.data.currentTab == 0 && !this.data.fromFriendUseCart) {
+      console.log(1,this.data.currentTab)
+      app.globalData.nowOrFutureId = null;
+      app.globalData.friendDriver = null;
+      app.globalData.friendStartDate = null;
+    }
+
+    if (app.globalData.nowOrFutureId === null) {
+      wx.removeStorageSync('startDate')
+    }
   },
   onShow() {
-    // 是否有恢复订单
-    // if(wx.getStorageSync('token')){
-    //   this.reqHasOrder();
-    // }
-    let lineDate = new Date(d40);
-    let h = lineDate.getHours() < 10 ? '0'+ lineDate.getHours() : lineDate.getHours();
-    let m = lineDate.getMinutes() < 10 ? '0'+ lineDate.getMinutes() : lineDate.getMinutes();
-    let lineStartDate = '今天 '+h+' : '+ m;
+    console.log('onShow in index')
     this.getUserLocation()
-    if (wx.getStorageSync('phoneNumber')) {
-      this.reqHasOrder();
-    }
+    
     var _this = this;
     var add = ''
     if (app.globalData.strAddress) {
@@ -187,51 +238,42 @@ Page({
     } else {
       add = app.globalData.originAddress
     }
-    _this.setData({
+    this.setData({
       startAddress: add,
-      lineStartDate,
-      currentCity:app.globalData.lineStartCity,
-      lineCityCode:app.globalData.lineCityCode,
+      currentCity: app.globalData.lineStartCity,
+      EXC_city: app.globalData.exclusiveCarStartCity,
     })
-    if (this.data.currentTab == 0 && !this.data.fromFriendUseCart) {
-      app.globalData.nowOrFutureId = null;
-      app.globalData.friendDriverId = null;
-      app.globalData.friendStartDate = null;
-    }
-    if (app.globalData.nowOrFutureId === null) {
-      wx.removeStorageSync('startDate')
-    }
+
+    // if (this.data.currentTab == 0 && !this.data.fromFriendUseCart) {
+    //   console.log(1,this.data.currentTab)
+    //   app.globalData.nowOrFutureId = null;
+    //   app.globalData.friendDriver = null;
+    //   app.globalData.friendStartDate = null;
+    // }
+
+    // if (app.globalData.nowOrFutureId === null) {
+    //   wx.removeStorageSync('startDate')
+    // }
+
     wx.checkSession({
-      success: (res) => {
+      success: () => {
         if (!_this.data.notLogin) {
-          if (app.globalData.reqNotice && wx.getStorageSync('token')) {
+          if (app.globalData.reqNotice && wx.getStorageSync('token') && !wx.getStorageSync('needLogin')) {
             _this.getNotice();
           }
-          if (app.globalData.originLongitude && wx.getStorageSync('token')) {
+          if (app.globalData.originLongitude && wx.getStorageSync('token') && !wx.getStorageSync('needLogin')) {
             _this.reqFriendsList()
           }
         }
-      },
+      }
     })
-
-    //每次返回主页清空目的地
-    app.globalData.destinationProvince = ''
-    app.globalData.destinationCity = ''
-    app.globalData.destinationDistrict = ''
-    app.globalData.destinationStreet = ''
-    app.globalData.destination = ''
-    app.globalData.endLatitude = ''
-    app.globalData.endLongitude = ''
-
-    // this.animationData1 = wx.createAnimation({
-    //   duration: 250
-    // })
-    // this.animationData2 = wx.createAnimation({
-    //   duration: 250
-    // })
-    // this.animationData3 = wx.createAnimation({
-    //   duration: 250
-    // })
+    // if (!this.data.fromScan) {
+    //   //每次返回主页清空目的地
+    //   app.globalData.destinationCity = ''
+    //   app.globalData.destination = ''
+    //   app.globalData.endLatitude = ''
+    //   app.globalData.endLongitude = ''
+    // }
 
     // 优惠券
     let couponList = wx.getStorageSync('couponList');
@@ -244,28 +286,62 @@ Page({
       wx.removeStorageSync('couponList')
     }
 
+    // 远程
+    this.setData({
+      lineCurrentPage: 1,
+      usedLineList: null,
+      allLineList: null,
+    })
 
+    if (this.data.currentTab == 1 && app.globalData.lineCityCode) { // 远程
+      this.remoteLineList(false)
+    } else if (this.data.currentTab == 2 && app.globalData.exclusiveCarCityCode) { // 包车
+      this.EXC_list(false)
+    }
 
+    app.globalData.EXCStartAddress = null;
+    app.globalData.EXCStartLat = null;
+    app.globalData.EXCStartLng = null;
+
+    curPageOnShow = true;
+
+    if(app.globalData.clientDriving) this.mqttClient();
+
+    if (wx.getStorageSync('phoneNumber')) {
+      this.reqHasOrder();
+    }
   },
 
   onReady: function () {
     this.mapCtx = wx.createMapContext("indexMap"); // 地图组件的id
-    // this.setData({
-    //   hiddenLoading:true
-    // })
-
   },
   onHide() {
     app.globalData.strAddress = this.data.startAddress;
     app.globalData.strLatitude = this.data.latitude;
     app.globalData.strLongitude = this.data.longitude;
+    // app.globalData.clientDriving = null;
+    curPageOnShow = false;
+  },
+
+  onUnload(){
+    console.log('onUnload in index')
+    curPageOnShow = false;
+    // if(client) client.end();
+    // if (app.globalData.clientDriving) {
+    //   app.globalData.clientDriving.unsubscribe(app.globalData.pubTopic, (err) => {
+    //     if (!err) {
+    //       console.log('退订成功')
+    //     } else console.log('请先连接服务器')
+    //   })
+    // }
+    // app.globalData.clientDriving = null;
   },
 
   // 转发
   onShareAppMessage(e) {
     return {
       title: '峡市约车',
-      imageUrl: "../../assets/images/share.jpg",
+      imageUrl: "http://scapp.xysc16.com/upload/wmp/imgs/share.png",
       path: "/pages/index/index",
       success: (res) => {
         console.log("转发成功", res);
@@ -276,140 +352,98 @@ Page({
     }
   },
 
-  checkMySession() {
-    wx.getStorageSync({
-      key: 'session_key',
-      success(res) {
-        //有session_key说明登陆过，判断session是否有效
-        wx.checkSession({
-          success(res) { //有效
-          },
-          fail(err) { //无效,重新登录
-            // app.reqLogin();
-            // _this.getUserInfo()
-            wx.navigateTo({
-              url: '/user_center/pages/login/login',
-            })
-          }
-        })
-      },
-      //本地无法获取session, 重新登录
-      fail(res) {
-        console.log("获取失败session_key", res);
-        // app.reqLogin();
-        wx.navigateTo({
-          url: '/user_center/pages/login/login',
-        })
-      }
-    })
-  },
-
-  //存储字段  目前自定义
-  requestCart(e) {
-    const navData = [{
-        "id": 0,
-        "name": "网约车",
-      },
-      {
-        "id": 1,
-        "name": "远程",
-      },
-      // {
-      //   "id": 2,
-      //   "name": "城际",
-      // },
-      // {
-      //   "id": 3,
-      //   "name": "顺风车",
-      // },
-      {
-        "id": 4,
-        "name": "好友司机",
-      }
-    ];
-    const imgUrls = [
-      "../../assets/images/swiper-2.png",
-      "../../assets/images/swiper-1.png",
-      "../../assets/images/swiper-3.png"
-    ];
-    const cost = [{
-        "id": "0",
-        "name": "现在出发",
-        "url": "../../assets/images/time.png"
-      },
-      {
-        "id": "1",
-        "name": "换乘车人",
-        "url": "../../assets/images/driver.png"
-      },
-      {
-        "id": "2",
-        "name": "个人支付",
-        "url": "../../assets/images/play.png"
-      }
-    ];
-
-    this.setData({
-      navData,
-      imgUrls,
-      cost
-    })
-  },
-
-  // 点击选择终点
-  toDestination(e) {
-    console.log(app.globalData)
-    if ((app.globalData.nowOrFutureId == 2 || app.globalData.nowOrFutureId === null) && this.data.fromFriendUseCart && app.globalData.friendStartDate == null) {
-      wx.showModal({
-        content: '请选择预约时间',
-        showCancel: false
-      })
-    } else {
-      if (e.currentTarget.dataset.from === 'scan') {
-        wx.navigateTo({
-          url: '/pages/destination/destination?from=scan',
-        })
-      } else {
-        wx.navigateTo({
-          url: '/pages/destination/destination',
-        })
-      }
-    }
-  },
-
-
-
   //切换导航 获取不同计价方式
-  switchNav(event) {
-    const cart = event.currentTarget.dataset.name
-    var cur = event.currentTarget.dataset.current;
-
-    // app.globalData.tabName = cart
-    // app.globalData.tabId = cur
+  async switchNav(event) {
+    let item = event.currentTarget.dataset.item;
+    console.log(item)
+    if(item.businessType == 5){
+      this.setData({
+        currentBusinessType: 5,
+        hideCityNoService:true
+      })
+    }else if(item.businessType != 6 && item.businessType != 9){
+      await this.checkCityStatus(item.businessType);
+      this.setData({
+        currentBusinessType: item.businessType,
+      })
+    }
     this.setData({
-      cart,
+      cart: item.name,
+      currentTab: item.id,
+      
       isLoading: true,
     })
 
-    this.setData({
-      currentTab: cur,
-    })
+    // 网约车
+    if (item.id === 0 || item.id === 3) {
+      app.globalData.lineStartAddress = '';
+      app.globalData.lineEndAddress = '';
+    }
 
-    if(cur === 0){
+    if (this.data.integralMqttData && item.id === 0) {
       this.setData({
-        fixedLine: false
+        showVipProgress: true
       })
-    }else if (cur === 1) {
+    } else {
       this.setData({
-        fixedLine: true,
+        showVipProgress: false
       })
     }
 
-    if (cur === 4) {
+    // 远程
+    if (item.id === 1) {
+      this.setData({
+        fixedLine: true
+      })
+      app.globalData.lineStartAddress = '';
+      app.globalData.lineStartLat = '';
+      app.globalData.lineStartLng = '';
+      app.globalData.lineEndAddress = '';
+      app.globalData.lineEndLat = '';
+      app.globalData.lineEndLng = '';
+      await this.getCurrentLocation();
+      // if (wx.getStorageSync('token')) {
+      if (app.globalData.lineCityCode) {
+        this.setData({
+          lineCurrentPage: 1
+        })
+        this.remoteLineList(false)
+      } else {
+        console.log(app.globalData)
+      }
+      this.setData({
+        fixedLine: true,
+        currentCity: app.globalData.lineStartCity,
+      })
+    } else {
+      this.setData({
+        fixedLine: false,
+      })
+    }
+
+    // 包车
+    if (item.id === 2) {
+      this.setData({
+        exclusiveCar: true,
+        EXC_city: app.globalData.exclusiveCarStartCity,
+      })
+      this.setData({
+        EXC_currentPage: 1
+      })
+      this.EXC_list(false);
+    } else {
+      this.setData({
+        exclusiveCar: false
+      })
+    }
+
+    // 好友司机
+    if (item.id === 4) {
       this.setData({
         isDriverFriends: true
       })
       if (wx.getStorageSync('token')) this.reqFriendsList();
+      // 非好友司机
     } else {
       this.setData({
         isDriverFriends: false,
@@ -417,8 +451,9 @@ Page({
         fromFriendUseCart: false,
       })
       if (this.data.currentTab != 4 && !this.data.fromFriendUseCart) {
+        console.log(2)
         app.globalData.nowOrFutureId = null;
-        app.globalData.friendDriverId = null;
+        app.globalData.friendDriver = null;
         app.globalData.friendStartDate = null;
       }
       if (app.globalData.nowOrFutureId === null) {
@@ -434,20 +469,25 @@ Page({
 
   // 是否有未完成订单
   reqHasOrder() {
-    http.postRequest("/carOrder/passenger/checkRecoverOrder", '', wx.getStorageSync('header'), res => {
+    let _this = this;
+    http.postRequest("/v1/carOrder/passenger/checkRecoverOrder", '', wx.getStorageSync('header'), res => {
       if (res.code === '1' && res.content.state === 1) {
         this.setData({
           reqRecoverOrder: this.data.reqRecoverOrder++
         })
-        if (this.data.reqRecoverOrder <= 1) {
+        if (this.data.reqRecoverOrder <= 1 && this.data.currentTab != 4) {
           wx.showModal({
             content: "您有一个尚未完成的订单，是否进入该订单",
             success(res) {
               if (res.confirm) {
-                wx.redirectTo({
-                  url: '/pages/orderService/orderService?from=hasNoOrder',
-                })
-              }
+                if(_this.data.mqttData1005){
+                  _this.toDrivingEnd()
+                }else{
+                  wx.redirectTo({
+                    url: '/driving_status/pages/orderService/orderService?from=hasNoOrder',
+                  })
+                }
+              } 
             }
           })
         }
@@ -456,8 +496,18 @@ Page({
           notLogin: true
         })
       }
+      if (!this.data.fromFriendUseCart) {
+        wx.setNavigationBarTitle({
+          title: '峡市约车',
+        })
+      }
     }, err => {
       console.log(err)
+      if (!this.data.fromFriendUseCart) {
+        wx.setNavigationBarTitle({
+          title: '峡市约车',
+        })
+      }
     })
   },
 
@@ -469,8 +519,7 @@ Page({
       pageSize: 30,
       currentPage: 1,
     }
-    http.getRequest("/passenger/friendDriver/list", data, wx.getStorageSync('header'), res => {
-      console.log('好友：', res)
+    http.getRequest("/v1/passenger/friendDriver/list", data, wx.getStorageSync('header'), res => {
       if (res.code === '1' && res.content.length !== 0) {
         this.setData({
           noFriends: false,
@@ -517,8 +566,7 @@ Page({
   // 删除好友司机
   reqDelFriend(driverNo) {
     let newDriver;
-    http.postRequest("/passenger/friendDriver/attentionOrCancel?driverNo=" + driverNo, '', wx.getStorageSync('header'), res => {
-      console.log('删除好友：', res)
+    http.postRequest("/v1/passenger/friendDriver/attentionOrCancel?driverNo=" + driverNo, '', wx.getStorageSync('header'), res => {
       if (res.code === '1' && res.content.length !== 0) {
         this.setData({
           showDel: null,
@@ -546,30 +594,6 @@ Page({
     })
   },
 
-  // reqFriendsList() {
-  //   let data = {
-  //     lng: app.globalData.originLongitude,
-  //     lat: app.globalData.originLatitude,
-  //     pageSize: 30,
-  //     currentPage: 1
-  //   }
-  //   http.getRequest("/passenger/friendDriver/list", data, wx.getStorageSync('header'), res => {
-  //     if (res.code === '1' && res.content.length !== 0) {
-  //       let list0 = res.content.filter(item => item.state === 0)
-  //       let list1 = res.content.filter(item => item.state === 1)
-  //       let list2 = res.content.filter(item => item.state === 2)
-  //       this.setData({
-  //         onlineDriverList: list0,
-  //         workingDriverList: list1,
-  //         offlineDriverList: list2
-  //       })
-  //     }
-  //   }, err => {
-  //     console.log(err)
-  //   })
-  // },
-
-
   //获取地理位置
   getUserLocation() {
     let _self = this
@@ -582,19 +606,35 @@ Page({
           longitude: app.globalData.strLongitude,
         },
         success(addressRes) {
-          console.log('location1', addressRes)
-          app.globalData.strLatitude = addressRes.result.location.lat;
-          app.globalData.strLongitude = addressRes.result.location.lng;
-          app.globalData.strAddress = addressRes.result.formatted_addresses.recommend;
-          app.globalData.startCity = addressRes.result.address_component.city;
-          app.globalData.lineStartCity = addressRes.result.address_component.city;
-          wx.setStorageSync('areaCodeIndex', addressRes.result.ad_info.adcode)
+          console.log('location1:', addressRes);
+          let res = addressRes.result;
+          app.globalData.strLatitude = res.location.lat;
+          app.globalData.strLongitude = res.location.lng;
+          app.globalData.strAddress = res.formatted_addresses.recommend;
+          app.globalData.startCity = res.address_component.city;
+          app.globalData.startCityAdcode = res.ad_info.adcode;
+          app.globalData.lineStartCity = res.address_component.city;
+          if (!app.globalData.exclusiveCarStartCity) {
+            app.globalData.exclusiveCarStartCity = res.address_component.city;
+            app.globalData.exclusiveCarCityCode = res.ad_info.city_code.substr(3);
+          }
+
+          if (_self.data.currentTab == 1 && app.globalData.lineCityCode == res.ad_info.city_code.substr(3)) {
+            _self.remoteLineList(false)
+          }
+          app.globalData.lineCityCode = res.ad_info.city_code.substr(3);
+          wx.setStorageSync('areaCodeIndex', res.ad_info.adcode)
           _self.setData({
-            latitude: addressRes.result.location.lat,
-            longitude: addressRes.result.location.lng,
-            startAddress: addressRes.result.formatted_addresses.recommend,
+            latitude: res.location.lat,
+            longitude: res.location.lng,
+            startAddress: res.formatted_addresses.recommend,
             scale: 16,
           })
+          if(_self.data.currentTab == 0 || _self.data.currentTab == 3){
+            _self.checkCityStatus(_self.data.currentBusinessType);
+          }
+          _self.navNumReq(app.globalData.startCityAdcode);
+            
         },
         fail() {
           _self.setData({})
@@ -602,10 +642,16 @@ Page({
         }
       })
     } else {
+      this.getCurrentLocation()
+    }
+  },
+
+  getCurrentLocation() {
+    let _self = this;
+    return new Promise((resolve, reject) => {
       wx.getLocation({
         type: 'gcj02',
         success(res) {
-          console.log(res)
           let _latitude = res.latitude
           let _longitude = res.longitude
 
@@ -620,34 +666,45 @@ Page({
               longitude: _longitude
             },
             success(addressRes) {
-              console.log('location2', addressRes)
+              console.log('location2:', addressRes);
               let obj = addressRes.result.address_component
-              console.log(obj.city)
 
-              app.globalData.originProvince = obj.province; //省
               app.globalData.originCity = obj.city; //市
-              app.globalData.originDistrict = obj.district; //区县
-              app.globalData.originStreet = obj.street; //街道
               app.globalData.originAddress = addressRes.result.formatted_addresses.recommend;
               app.globalData.originLongitude = _longitude;
               app.globalData.originLatitude = _latitude;
               app.globalData.strLongitude = _longitude;
               app.globalData.strLatitude = _latitude;
               app.globalData.startCity = obj.city;
+              app.globalData.startCityAdcode = addressRes.result.ad_info.adcode;
               app.globalData.lineStartCity = obj.city;
+              if (!app.globalData.exclusiveCarStartCity) {
+                app.globalData.exclusiveCarStartCity = obj.city;
+                app.globalData.exclusiveCarCityCode = addressRes.result.ad_info.city_code.substr(3);
+              }
+              if (_self.data.currentTab == 1 && app.globalData.lineCityCode == addressRes.result.ad_info.city_code.substr(3)) {
+                _self.remoteLineList(false)
+              }
+              app.globalData.lineCityCode = addressRes.result.ad_info.city_code.substr(3);
               wx.setStorageSync('areaCodeIndex', addressRes.result.ad_info.adcode)
-              if (wx.getStorageSync('token')) _self.reqFriendsList()
+              if (wx.getStorageSync('token') && !wx.getStorageSync('needLogin')) _self.reqFriendsList()
 
               _self.setData({
                 latitude: addressRes.result.location.lat,
                 longitude: addressRes.result.location.lng,
                 startAddress: addressRes.result.formatted_addresses.recommend,
-                currentCity:app.globalData.lineStartCity
+                currentCity: app.globalData.lineStartCity,
+                EXC_city: app.globalData.exclusiveCarStartCity,
               })
+              if(_self.data.currentTab == 0 || _self.data.currentTab == 3){
+                _self.checkCityStatus(_self.data.currentBusinessType);
+              }
+              _self.navNumReq(app.globalData.startCityAdcode);
+              resolve();
             },
             fail() {
-              _self.setData({})
               console.log("获取位置失败");
+              reject()
             }
           })
         },
@@ -677,21 +734,17 @@ Page({
                 wx.showModal({
                   title: '',
                   content: '请在系统定位中打开位置服务',
-                  success(res) {
-
-                  }
                 })
               }
             }
           })
         }
       })
-    }
+    })
   },
 
   //改变地图中心位置
   bindregionchange: function (e) {
-    console.log(e)
     if (e.type == 'end' && (e.causedBy == 'scale' || e.causedBy == 'drag')) {
       if (app.globalData.strLongitude && app.globalData.strLatitude) {
         this.getCurLocationChange()
@@ -709,15 +762,21 @@ Page({
             longitude: res.longitude,
           },
           success: function (res) {
-            console.log('location4',res)
-            app.globalData.strLongitude = res.result.location.lng;
-            app.globalData.strLatitude = res.result.location.lat;
-            app.globalData.strAddress = res.result.formatted_addresses.recommend;
-            app.globalData.startCity = res.result.address_component.city;
+            console.log('location3:', res);
+            let adRes = res.result;
+            app.globalData.strLongitude = adRes.location.lng;
+            app.globalData.strLatitude = adRes.location.lat;
+            app.globalData.strAddress = adRes.formatted_addresses.recommend;
+            app.globalData.startCity = adRes.address_component.city;
+            app.globalData.startCityAdcode = adRes.ad_info.adcode;
+
+            if(_this.data.currentTab == 0 || _this.data.currentTab == 3) {
+                _this.checkCityStatus(_this.data.currentBusinessType);
+              }
             _this.setData({
-              latitude: res.result.location.lat,
-              longitude: res.result.location.lng,
-              startAddress: res.result.formatted_addresses.recommend
+              latitude: adRes.location.lat,
+              longitude: adRes.location.lng,
+              startAddress: adRes.formatted_addresses.recommend
             })
           },
         });
@@ -727,7 +786,6 @@ Page({
 
   //重回当前位置
   getMyLocation() {
-    console.log(1)
     var _self = this
     wx.getLocation({
       type: "gcj02",
@@ -739,16 +797,21 @@ Page({
             longitude: res.longitude,
           },
           success: function (res1) {
-            console.log('location4',res1)
-            app.globalData.strLongitude = res1.result.location.lng;
-            app.globalData.strLatitude = res1.result.location.lat;
-            app.globalData.strAddress = res1.result.formatted_addresses.recommend;
-            app.globalData.startCity = res1.result.address_component.city;
+            console.log('location4:', res1);
+            let adRes = res1.result;
+            app.globalData.strLongitude = adRes.location.lng;
+            app.globalData.strLatitude = adRes.location.lat;
+            app.globalData.strAddress = adRes.formatted_addresses.recommend;
+            app.globalData.startCity = adRes.address_component.city;
+            app.globalData.startCityAdcode = adRes.ad_info.adcode;
             _self.setData({
-              latitude: res1.result.location.lat,
-              longitude: res1.result.location.lng,
-              startAddress: res1.result.formatted_addresses.recommend
+              latitude: adRes.location.lat,
+              longitude: adRes.location.lng,
+              startAddress: adRes.formatted_addresses.recommend
             })
+            if(_self.data.currentTab == 0 || _self.data.currentTab == 3){
+              _self.checkCityStatus(_self.data.currentBusinessType);
+            }
           },
         });
       },
@@ -765,23 +828,15 @@ Page({
         changeTab: e.currentTarget.dataset.current
       })
     }
+    console.log(3)
     app.globalData.nowOrFutureId = this.data.changeTab;
-    if (this.data.changeTab == 1) {
-
+    if (e.currentTarget.dataset.current == 1) {
+      wx.removeStorageSync('startDate');
+      this.setData({
+        onlyNowTime: true
+      })
     } else {
       wx.setStorageSync('startDate', this.data.startDate)
-    }
-
-    if (e.currentTarget.dataset.current === 1) {
-      this.data.onlyAppointmentTime ?
-        wx.showModal({
-          title: '提示',
-          content: '好友司机不在线呢~'
-        }) :
-        this.setData({
-          onlyNowTime: true
-        })
-    } else {
       this.setData({
         onlyNowTime: false
       })
@@ -790,25 +845,28 @@ Page({
 
 
   showUser() {
-    var phoneNumber = wx.getStorageSync("phoneNumber")
-    wx.checkSession({
-      success: (res) => {
-        if (phoneNumber) {
-          wx.navigateTo({
-            url: "/user_center/pages/personalCenter/personalCenter",
-          })
-        } else {
+    var phoneNumber = wx.getStorageSync("phoneNumber");
+    if (toUserTimer) clearTimeout(toUserTimer)
+    toUserTimer = setTimeout(() => {
+      wx.checkSession({
+        success: (res) => {
+          if (phoneNumber) {
+            wx.navigateTo({
+              url: "/user_center/pages/personalCenter/personalCenter",
+            })
+          } else {
+            wx.navigateTo({
+              url: "/user_center/pages/login/login",
+            })
+          }
+        },
+        fail(err) {
           wx.navigateTo({
             url: "/user_center/pages/login/login",
           })
-        }
-      },
-      fail(err) {
-        wx.navigateTo({
-          url: "/user_center/pages/login/login",
-        })
-      }
-    })
+        },
+      })
+    }, 500);
 
 
   },
@@ -827,31 +885,39 @@ Page({
   },
 
   useCart(e) {
-    console.log('好友司机==>', e.currentTarget.dataset)
+    wx.removeStorageSync('startDate');
     let driverFriend;
-    if (e.currentTarget.dataset.state == 2) {
-      driverFriend = {
-        name: e.currentTarget.dataset.name,
-        cart_num: e.currentTarget.dataset.cart_num,
-        cart_id: e.currentTarget.dataset.cart_id,
-        cart_no: e.currentTarget.dataset.cart_no,
-        fromOffline: true,
+    let item = e.currentTarget.dataset.item;
+    if (item.driverType == 1 || item.driverType == 6) {
+      if (item.state != 0) {
+        driverFriend = {
+          name: item.driverName,
+          cart_num: item.carNumber,
+          cart_id: item.driverId,
+          cart_no: item.driverNo,
+          fromOffline: true,
+        }
+      } else {
+        driverFriend = {
+          name: item.driverName,
+          cart_num: item.carNumber,
+          cart_id: item.driverId,
+          cart_no: item.driverNo
+        }
       }
+      app.globalData.nowOrFutureId = 1;
+      wx.navigateTo({
+        url: '/pages/index/index?driverFriend=' + JSON.stringify(driverFriend) + '&driverType=' + item.driverType,
+      })
     } else {
-      driverFriend = {
-        name: e.currentTarget.dataset.name,
-        cart_num: e.currentTarget.dataset.cart_num,
-        cart_id: e.currentTarget.dataset.cart_id,
-        cart_no: e.currentTarget.dataset.cart_no
-      }
+      wx.showToast({
+        title: `${item.driverTypeName}暂不支持好友司机服务`,
+        icon: 'none'
+      })
     }
-    app.globalData.nowOrFutureId = 1;
-    wx.navigateTo({
-      url: '/pages/index/index?driverFriend=' + JSON.stringify(driverFriend),
-    })
   },
+
   callPhone(e) {
-    console.log('电话号码：', e.currentTarget.dataset)
     wx.makePhoneCall({
       phoneNumber: e.currentTarget.dataset.phone,
       success() {
@@ -860,103 +926,34 @@ Page({
     })
   },
 
-  // unfold1() {
-  //   if (this.data.list1Show) {
-  //     this.animationData1.rotate(-45).step();
-  //     this.setData({
-  //       animationData1: this.animationData1.export(),
-  //       list1Show: false
-  //     })
-  //   } else {
-  //     this.animationData1.rotate(45).step();
-  //     this.setData({
-  //       animationData1: this.animationData1.export(),
-  //       list1Show: true
-  //     })
-  //   }
-  // },
-
-  // unfold2() {
-  //   if (this.data.list2Show) {
-  //     this.animationData2.rotate(-45).step();
-  //     this.setData({
-  //       animationData2: this.animationData2.export(),
-  //       list2Show: false
-  //     })
-  //   } else {
-  //     this.animationData2.rotate(45).step();
-  //     this.setData({
-  //       animationData2: this.animationData2.export(),
-  //       list2Show: true
-  //     })
-  //   }
-  // },
-
-  // unfold3() {
-  //   if (this.data.list3Show) {
-  //     this.animationData3.rotate(-45).step();
-  //     this.setData({
-  //       animationData3: this.animationData3.export(),
-  //       list3Show: false
-  //     })
-  //   } else {
-  //     this.animationData3.rotate(45).step();
-  //     this.setData({
-  //       animationData3: this.animationData3.export(),
-  //       list3Show: true
-  //     })
-  //   }
-  // },
-
-  // useCartOnline(e) {
-  //   console.log('好友司机==>', e.currentTarget.dataset)
-  //   let driverFriend = {
-  //     name: e.currentTarget.dataset.name,
-  //     cart_num: e.currentTarget.dataset.cart_num,
-  //     cart_id: e.currentTarget.dataset.cart_id,
-  //     cart_no: e.currentTarget.dataset.cart_no
-  //   }
-  //   wx.navigateTo({
-  //     url: '/pages/index/index?driverFriend=' + JSON.stringify(driverFriend),
-  //   })
-  // },
-  // useCartWorking(e) {
-  //   console.log('好友司机==>', e.currentTarget.dataset)
-  //   let driverFriend = {
-  //     name: e.currentTarget.dataset.name,
-  //     cart_num: e.currentTarget.dataset.cart_num,
-  //     cart_id: e.currentTarget.dataset.cart_id,
-  //     cart_no: e.currentTarget.dataset.cart_no
-  //   }
-  //   wx.navigateTo({
-  //     url: '/pages/index/index?driverFriend=' + JSON.stringify(driverFriend),
-  //   })
-  // },
-  // useCartOffline(e) {
-  //   console.log('好友司机==>', e.currentTarget.dataset)
-  //   let driverFriend = {
-  //     name: e.currentTarget.dataset.name,
-  //     cart_num: e.currentTarget.dataset.cart_num,
-  //     fromOffline: true,
-  //     cart_id: e.currentTarget.dataset.cart_id,
-  //     cart_no: e.currentTarget.dataset.cart_no
-  //   }
-  //   wx.navigateTo({
-  //     url: '/pages/index/index?driverFriend=' + JSON.stringify(driverFriend),
-  //   })
-  // },
-
   addFriends() {
     wx.navigateTo({
       url: '/pages/addFriends/addFriends',
     })
   },
 
+  // 时间限制请求
+  dateReq() {
+    let url = '/v2/passenger/charteredCar/getTime?businessType=5&driverType=' + this.data.friendsDriverType;
+    http.postRequest(url, '', wx.getStorageSync('header'), res => {
+      this.setData({
+        dateReqInfo: res.content
+      })
+    }, err => {
+      console.log(err)
+    })
+  },
+
   // 预约日期
   pickerTap: function () {
-    date = new Date(d30);
+    let d = new Date().getTime() + (this.data.dateReqInfo.appointmentTime * 60000);
+    date = new Date(d);
 
-    var monthDay = ['今天', '明天'];
+    let day1 = (date.getMonth() + 1) + "月" + date.getDate() + "日" + ' ' + '今天';
+    let day2 = (new Date(date.getTime() + 24 * 3600000).getMonth() + 1) + "月" + new Date(date.getTime() + 24 * 3600000).getDate() + "日" + ' ' + '明天';
+    let day3 = (new Date(date.getTime() + 48 * 3600000).getMonth() + 1) + "月" + new Date(date.getTime() + 48 * 3600000).getDate() + "日" + ' ' + '后天';
+
+    var monthDay = [day1, day2, day3];
     var hours = [];
     var minute = [];
 
@@ -964,11 +961,18 @@ Page({
     currentMinute = date.getMinutes();
 
     // 月-日
-    for (var i = 2; i <= 2; i++) {
-      var date1 = new Date(date);
-      date1.setDate(date.getDate() + i);
-      var md = (date1.getMonth() + 1) + "-" + date1.getDate();
-      monthDay.push(md);
+    let maxDate = this.data.dateReqInfo.appointmentDay;
+    if (maxDate >= 4) {
+      for (var i = 3; i <= maxDate - 1; i++) {
+        var date1 = new Date(date);
+        date1.setDate(date.getDate() + i);
+        var md = (date1.getMonth() + 1) + "月" + date1.getDate() + "日" + " " + weekday[date1.getDay()];
+        monthDay.push(md);
+      }
+    } else if (maxDate == 2) {
+      monthDay = ['今天', '明天'];
+    } else if (maxDate == 1) {
+      monthDay = ['今天'];
     }
 
     var data = {
@@ -1005,11 +1009,12 @@ Page({
 
 
   bindMultiPickerColumnChange: function (e) {
-    date = new Date(d30);
+    let d = new Date().getTime() + (this.data.dateReqInfo.appointmentTime * 60000);
+    date = new Date(d);
 
     var that = this;
 
-    var monthDay = ['今天', '明天'];
+    var monthDay = ['今天', '明天', '后天'];
     var hours = [];
     var minute = [];
 
@@ -1081,7 +1086,6 @@ Page({
   },
 
   loadData: function (hours, minute) {
-
     var minuteIndex;
     if (currentMinute > 0 && currentMinute <= 10) {
       minuteIndex = 10;
@@ -1119,18 +1123,21 @@ Page({
   },
 
   loadHoursMinute: function (hours, minute) {
+    let start = this.data.dateReqInfo.ridingTimeStart.split(':');
+    let end = this.data.dateReqInfo.ridingTimeEnd.split(':');
     // 时
-    for (var i = 0; i < 24; i++) {
+    for (var i = parseInt(start[0]); i <= parseInt(end[0]); i++) {
       hours.push(i);
     }
     // 分
-    for (var i = 0; i < 60; i += 10) {
+    for (var i = parseInt(start[1]); i <= parseInt(end[1]); i += 10) {
       minute.push(i);
     }
   },
 
   loadMinute: function (hours, minute) {
     var minuteIndex;
+    let end = this.data.dateReqInfo.ridingTimeEnd.split(':');
     if (currentMinute > 0 && currentMinute <= 10) {
       minuteIndex = 10;
     } else if (currentMinute > 10 && currentMinute <= 20) {
@@ -1147,53 +1154,62 @@ Page({
 
     if (minuteIndex == 60) {
       // 时
-      for (var i = currentHours + 1; i < 24; i++) {
+      for (var i = currentHours + 1; i <= parseInt(end[0]); i++) {
         hours.push(i);
       }
     } else {
       // 时
-      for (var i = currentHours; i < 24; i++) {
+      for (var i = currentHours; i <= parseInt(end[0]); i++) {
         hours.push(i);
       }
     }
     // 分
-    for (var i = 0; i < 60; i += 10) {
+    for (var i = 0; i <= parseInt(end[1]); i += 10) {
       minute.push(i);
     }
   },
 
   bindStartMultiPickerChange: function (e) {
     var that = this;
+    let d = new Date().getTime() + (this.data.dateReqInfo.appointmentTime * 60000);
+    date = new Date(d);
     var monthDay = that.data.multiArray[0][e.detail.value[0]];
     var hours = that.data.multiArray[1][e.detail.value[1]];
     var minute = that.data.multiArray[2][e.detail.value[2]];
     var globalMonthDay;
 
-    if (monthDay === "今天") {
+    if (monthDay.split(' ')[1] === "今天") {
       var month = date.getMonth() + 1;
       var day = date.getDate();
       monthDay = month + "月" + day + "日";
-      globalMonthDay = new Date().getFullYear() + '-' + month + "-" + day
-    } else if (monthDay === "明天") {
+      globalMonthDay = date.getFullYear() + '-' + month + "-" + day
+    } else if (monthDay.split(' ')[1] === "明天") {
       var date1 = new Date(date);
       date1.setDate(date.getDate() + 1);
       monthDay = (date1.getMonth() + 1) + "月" + date1.getDate() + "日";
-      globalMonthDay = new Date().getFullYear() + '-' + (date1.getMonth() + 1) + "-" + date1.getDate()
+      globalMonthDay = date.getFullYear() + '-' + (date1.getMonth() + 1) + "-" + date1.getDate()
+
+    } else if (monthDay.split(' ')[1] === "后天") {
+      var date2 = new Date(date);
+      date2.setDate(date.getDate() + 2);
+      monthDay = (date2.getMonth() + 1) + "月" + date2.getDate() + "日";
+      globalMonthDay = date.getFullYear() + '-' + (date2.getMonth() + 1) + "-" + date2.getDate()
 
     } else {
-      var month = monthDay.split("-")[0]; // 返回月
-      var day = monthDay.split("-")[1]; // 返回日
-      monthDay = month + "月" + day + "日";
-      globalMonthDay = new Date().getFullYear() + '-' + month + "-" + day
+      var month = monthDay.split("月")[0]; // 返回月
+      var day = monthDay.split("月")[1].split("日")[0]; // 返回日
+      globalMonthDay = date.getFullYear() + '-' + month + "-" + day
     }
-
-    var startDate = monthDay + " " + parseInt(hours) + " : " + parseInt(minute);
-    var globalStartDate = globalMonthDay + " " + parseInt(hours) + ":" + parseInt(minute);
+    let resHours = parseInt(hours) < 10 ? '0' + parseInt(hours) : parseInt(hours);
+    let resMinute = parseInt(minute) < 10 ? '0' + parseInt(minute) : parseInt(minute);
+    var startDate = monthDay + " " + resHours + " : " + resMinute;
+    var globalStartDate = globalMonthDay + " " + resHours + ":" + resMinute;
+    console.log(startDate)
     that.setData({
       startDate: startDate
     })
     wx.setStorageSync('startDate', startDate)
-    app.globalData.friendStartDate = parseInt(new Date(globalStartDate).getTime(globalStartDate)) / 1000;
+    app.globalData.friendStartDate = parseInt(new Date(globalStartDate).getTime(globalStartDate));
   },
 
 
@@ -1220,12 +1236,12 @@ Page({
 
     let header = wx.getStorageSync('header');
     header.channel = 6;
-    http.postRequest("/qrCode/createOrder", data, header, res => {
+    http.postRequest("/v1/qrCode/createOrder", data, header, res => {
       console.log(res)
       if (res.code === '1') {
         if (res.content.canPlaceOrder) {
           wx.redirectTo({
-            url: '/pages/orderService/orderService?from=scan&&scanDriverInfo=' + JSON.stringify(res.content),
+            url: '/driving_status/pages/orderService/orderService?from=scan&&scanDriverInfo=' + JSON.stringify(res.content),
           })
         } else {
           wx.showModal({
@@ -1233,7 +1249,7 @@ Page({
             success(res) {
               if (res.confirm) {
                 wx.redirectTo({
-                  url: '/pages/orderService/orderService?from=hasNoOrder',
+                  url: '/driving_status/pages/orderService/orderService?from=hasNoOrder',
                 })
               }
             }
@@ -1247,8 +1263,7 @@ Page({
   },
 
   getNotice() {
-    http.getRequest("/passenger/user/notice", {}, wx.getStorageSync('header'), res => {
-      console.log('公告信息', res)
+    http.getRequest("/v1/passenger/user/notice", {}, wx.getStorageSync('header'), res => {
       if (res.code === '1' && res.content.length > 0) {
         this.setData({
           showNotice: true,
@@ -1289,19 +1304,359 @@ Page({
       url: '/user_center/pages/coupon/coupon',
     })
   },
+  toStarting() {
+    if (this.data.currentTab == 3) {
+      wx.navigateTo({
+        url: '/pages/starting/starting?from=taxi',
+      })
+    } else {
+      wx.navigateTo({
+        url: '/pages/starting/starting',
+      })
+    }
 
-  // 点击乘车人数
-  clickPerNum(e){
-    let num = e.currentTarget.dataset.num;
-    this.setData({
-      lineCurPerNum:num
+  },
+
+  // 点击选择终点
+  toDestination(e) {
+    console.log(app.globalData)
+    if (this.data.hideCityNoService) {
+      if ((app.globalData.nowOrFutureId == 2 || app.globalData.nowOrFutureId === null) && this.data.fromFriendUseCart && app.globalData.friendStartDate == null) {
+        wx.showModal({
+          content: '请选择预约时间',
+          showCancel: false
+        })
+      } else {
+        if (e.currentTarget.dataset.from === 'scan') {
+          wx.navigateTo({
+            url: '/pages/destination/destination?from=scan',
+          })
+        } else {
+          if (this.data.currentTab == 3) { // 出租车
+            wx.navigateTo({
+              url: '/pages/destination/destination?from=taxi&friendsDriverType=' + this.data.friendsDriverType,
+            })
+          } else if (this.data.currentTab == 4) { // 好友司机
+            wx.redirectTo({
+              url: '/pages/destination/destination?friendsDriverType=' + this.data.friendsDriverType,
+            })
+          } else {
+            wx.navigateTo({
+              url: '/pages/destination/destination?friendsDriverType=' + this.data.friendsDriverType,
+            })
+          }
+          this.setData({
+            friendsDriverType: null
+          })
+        }
+      }
+    }
+  },
+
+  //到达底部
+  scrollToLower: function (e) {
+    console.log(e)
+    if (!this.data.loading && !this.data.noMore) {
+      if (this.data.fixedLine) { // 远程
+        this.setData({
+          loading: true,
+          lineCurrentPage: this.data.lineCurrentPage + 1
+        });
+        this.remoteLineList(true);
+      } else if (this.data.exclusiveCar) { // 包车
+        this.setData({
+          loading: true,
+          EXC_currentPage: this.data.EXC_currentPage + 1
+        });
+        this.EXC_lineList(true);
+      }
+    }
+  },
+
+  // 远程站点列表
+  remoteLineList(isPage) {
+    const _this = this;
+    http.postRequest('/v2/passenger/remote/getBaseLineListByCityCode?cityCode=' + app.globalData.lineCityCode + '&pageSize=30&currentPage=' + this.data.lineCurrentPage, '', wx.getStorageSync('header'), res => {
+      this.setData({
+        loading: false,
+        fixedLine: true
+      })
+      let historyLine = res.content.filter(item => item.type === 0);
+      let allLine = res.content.filter(item => item.type === 1);
+      if (isPage) {
+        if (allLine.length === 0) {
+          _this.setData({
+            noMore: true
+          })
+        }
+        _this.setData({
+          allLineList: this.data.allLineList.concat(allLine),
+          hasCityLine: true
+        })
+      } else {
+        if (allLine.length === 0) {
+          _this.setData({
+            hasCityLine: false
+          })
+        } else {
+          _this.setData({
+            usedLineList: historyLine,
+            allLineList: allLine,
+            hasCityLine: true
+          })
+        }
+      }
+    }, err => {
+      console.log(err)
     })
   },
 
-  // 远程选择定位城市
-  chooseLineCity(){
+  // 远程选择城市
+  chooseLineCity() {
     wx.navigateTo({
       url: '/pages/searchCity/searchCity?urlFrom=3',
     })
-  }
+  },
+
+  // 远程选择线路
+  chooseStation(e) {
+    let item = e.currentTarget.dataset.item;
+    console.log('远程站点选择：', item)
+    if (item) {
+      wx.navigateTo({
+        url: '/pages/remoteLineCallCar/remoteLineCallCar?lineItem=' + JSON.stringify(item),
+      })
+    }
+  },
+
+  // 包车选择城市
+  chooseEXCCity() {
+    wx.navigateTo({
+      url: '/pages/searchCity/searchCity?urlFrom=4',
+    })
+  },
+
+  // 包车列表
+  EXC_list(isPage) {
+    let url = '/v2/passenger/charteredCar/getLineListByCityCode?cityCode=' + app.globalData.exclusiveCarCityCode + '&pageSize=20&currentPage=' + this.data.EXC_currentPage;
+    http.postRequest(url, '', wx.getStorageSync('header'), res => {
+
+      this.setData({
+        loading: false,
+        exclusiveCar: true
+      })
+      if (isPage) {
+        if (res.content.length === 0) {
+          this.setData({
+            noMore: true
+          })
+        }
+        this.setData({
+          EXC_lineList: this.data.EXC_lineList.concat(res.content),
+          hasCityLine: true
+        })
+      } else {
+        if (res.content.length === 0) {
+          this.setData({
+            noMore: true,
+            hasCityLine: false
+          })
+        } else {
+          this.setData({
+            EXC_lineList: res.content,
+            hasCityLine: true
+          })
+        }
+      }
+    }, err => {
+      console.log(err)
+    })
+  },
+
+  // 包车选择线路
+  chooseExclusiveCarLine(e) {
+    let item = e.currentTarget.dataset.item;
+    wx.navigateTo({
+      url: '/pages/exclusiveCar/exclusiveCar?lineInfo=' + JSON.stringify(item),
+    })
+  },
+
+  // 查询城市业务是否开通
+  checkCityStatus(businessType) {
+    let _this = this;
+    if (app.globalData.startCityAdcode && wx.getStorageSync('token')) {
+      let driverId = 0;
+      if(businessType == 5 && this.data.driverFriend){
+        driverId = this.data.driverFriend.cart_id;
+      }
+      if((businessType == 5 && this.data.driverFriend) || businessType != 5){
+        let url = "/v2/passenger/cityAreaBusinessManager/checkOpenCityBusiness?areaCode=" + app.globalData.startCityAdcode + "&businessType=" + businessType+"&driverId="+driverId;
+        return new Promise((resolve, reject) => {
+          http.postRequest(url, '', wx.getStorageSync('header'), res => {
+            if (res.content.isOpen === 0) {
+              _this.setData({
+                hideCityNoService: false
+              })
+              app.globalData.hideCityNoService = false;
+            } else {
+              _this.setData({
+                hideCityNoService: true
+              })
+              app.globalData.hideCityNoService = true;
+            }
+            resolve(res.content.isOpen);
+          }, err => {
+            console.log(err);
+            reject();
+          })
+        })
+      }
+    }
+  },
+
+  mqttClient() {
+    
+    app.globalData.clientDriving.on('message', (topic, message, packet) => {
+      let msg = JSON.parse(Base64.decode(message.toString()));
+      if(!curPageOnShow){
+        console.log("收到mqtt in index：return");
+        return;
+      }
+      if (msg && JSON.stringify(msg.data) !== '{}') {
+        console.log("收到mqtt in index：", msg.code);
+        if (msg.code == '1009') { 
+          this.orderRecover();
+        } else if(msg.code == '1005'){
+          this.setData({
+            mqttData1005:msg.data
+          })
+          this.toDrivingEnd();
+        } else if (msg.code == '1013') {
+          if (mqtt1013timer) clearTimeout(mqtt1013timer);
+          mqtt1013timer = setTimeout(() => {
+            let integralMqttData = msg.data;
+            if (integralMqttData.describe) {
+              this.setData({
+                showVipProgress: false
+              })
+              wx.showModal({
+                content: integralMqttData.describe,
+                showCancel: false,
+                confirmColor: "#FF8008",
+                confirmText: "确定",
+              })
+            } else {
+              if(this.data.currentTab == 0){
+                let orderPercent = (integralMqttData.orderNumber / integralMqttData.standardOrderNumber).toFixed(2)*100;
+                let integralPercent = (integralMqttData.integralNumber / integralMqttData.standardIntegralNumber).toFixed(2)*100;
+                // let orderPercent = parseFloat(integralMqttData.orderPercent)*100;
+                // let integralPercent = parseFloat(integralMqttData.integralPercent)*100;
+                integralMqttData.orderPercent = orderPercent;
+                integralMqttData.integralPercent = integralPercent;
+                this.setData({
+                  showVipProgress: true,
+                  integralMqttData,
+                  // orderPercent,
+                  // integralPercent,
+                })
+              }
+            }
+          }, 500);
+        }
+      }
+    })
+
+  },
+
+  toDrivingEnd(){
+    if (mqtt1005timer) clearTimeout(mqtt1005timer);
+    mqtt1005timer = setTimeout(() => {
+      wx.removeStorageSync('lineOrderNo')
+      let from;
+      if (this.data.mqttData1005.businessType == 6 || this.data.mqttData1005.businessType == 7) {
+        from = 'fixedLine';
+      } else if (this.data.mqttData1005.businessType == 9) {
+        from = 'exclusiveCar';
+      } else if (this.data.mqttData1005.businessType == 1) {
+        from = 'callCar';
+      } else if (this.data.mqttData1005.businessType == 10) {
+        from = 'taxi';
+      }else if(this.data.mqttData1005.businessType == 5){
+        if(this.data.mqttData1005.driverType == 6){
+          from = 'taxi';
+        }
+      }
+      wx.redirectTo({
+        url: '/driving_status/pages/travalEnd/travalEnd?resData=' + JSON.stringify(this.data.mqttData1005) + '&from=' + from,
+      })
+    }, 500);
+  },
+
+  // 订单恢复
+  orderRecover() {
+    if(wx.getStorageSync('token')){
+      http.postRequest("/v1/carOrder/passenger/recoverOrder", '', wx.getStorageSync('header'), res => {
+        if (res.success) {
+          console.log('recoverOrder');
+        }
+      }, err => {
+        console.log(err)
+      })
+    }
+  },
+
+  navNumReq(code) {
+    let navData = [{
+      "id": 0,
+      "businessType": 1,
+      "name": "网约车",
+    },
+    {
+      "id": 1,
+      "businessType": 6,
+      "name": "远程",
+    },
+    {
+      "id": 2,
+      "businessType": 9,
+      "name": "包车",
+    },
+    {
+      "id": 3,
+      "businessType": 10,
+      "name": "出租车",
+    },
+    {
+      "id": 4,
+      "businessType": 5,
+      "name": "好友司机",
+    }
+  ]
+    this.setData({
+       navData
+    })
+    http.postRequest("/v2/passenger/cityAreaBusinessManager/getCityAreaBusinessManagerByCityCode?cityCode=" + code, "", wx.getStorageSync('header'), res => {
+      if (res.content.length > 0) {
+        let tempArr = [],
+          resArr = [];
+        for (let i = 0; i < res.content.length; i++) {
+          tempArr = navData.filter(val => {
+            return val.businessType == res.content[i];
+          })
+          resArr = resArr.concat(tempArr);
+        }
+        this.setData({
+          navData:resArr
+        })
+      }
+    }, err => {
+      console.log(err)
+    })
+  },
+  
+  toMyIntegral() {
+    wx.navigateTo({
+      url: '/user_center/pages/integral/integral',
+    })
+  },
 })

@@ -28,6 +28,12 @@ Page({
       url: '/user_center/pages/coupon/coupon',
     })
   },
+
+  myIntegral() {
+    wx.navigateTo({
+      url: '/user_center/pages/integral/integral',
+    })
+  },
   // driverFriends(){
   //   wx.navigateTo({
   //     url: '/user_center/pages/driverFriends/driverFriends',
@@ -41,9 +47,21 @@ Page({
   },
 
   toService(){
-    wx.showToast({
-      title: '该功能即将上线，敬请期待',
-      icon:'none'
-    })
+    let servicePhone = wx.getStorageSync('servicePhone')
+    if(servicePhone){
+      wx.makePhoneCall({
+        phoneNumber: servicePhone,
+        success() {
+          console.log('拨打成功')
+        },
+        fail: function () {
+          console.log('拨打失败')
+        }
+      })
+    }else{
+      wx.navigateTo({
+        url: '/user_center/pages/login/login',
+      })
+    }
   }
 })

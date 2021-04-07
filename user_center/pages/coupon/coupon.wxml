@@ -2,23 +2,24 @@
 
 <view class="container">
  <view class="header">
-  <image src="../../assets/images/icon_shiyongshouming.png"></image>
+  <image src="http://scapp.xysc16.com/upload/wmp/imgs/icon_shiyongshouming.png"></image>
   <view>优惠券使用说明</view>
  </view>
 
  <view class="list">
   <view class="item" wx:for="{{listData}}" wx:key="index">
     <view class="left">
-      <image src="../../assets/images/youhuiquan_bg_small01.png"></image>
+      <image wx:if="{{item.activityType == 3}}" src="/assets/images/youhuiquan_bg_small_vip@2x.png"></image>
+      <image wx:else src="http://scapp.xysc16.com/upload/wmp/imgs/youhuiquan_bg_small01.png"></image>
       <view class="text">
-        <view class="price" wx:if="{{item.couponType === 1}}">￥<text>{{item.couponValue}}</text></view>
+        <view class="price" wx:if="{{item.couponType === 1 || item.couponType === 3}}">￥<text>{{item.couponValue}}</text></view>
         <view class="price" wx:elif="{{item.couponType === 2}}"><text>{{item.couponValue}}</text>折</view>
       </view>
        
     </view>
     <view class="right">
       <view class="top">
-        <view class="name">{{item.businessName}}</view>
+        <view class="name" style="color:{{item.activityType == 3 ? '#D99F05' : 'f00'}}">{{item.couponName}}</view>
         <view>{{item.useThresholdDesc}}</view>
       </view>
       <view class="btm">

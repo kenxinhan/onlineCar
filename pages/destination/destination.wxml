@@ -1,5 +1,8 @@
 <view class="container">
 	<view class="location">
+			<image class="arrow-icon" src="http://scapp.xysc16.com/upload/wmp/imgs/arrow-btm.png"></image>
+			<view class="dott_line1"></view>
+			<view class="dott_line2"></view>
 		<view class="location-city" bindtap="chooseCity">
 			<text>{{destinationCity}}</text>
 		</view>
@@ -13,7 +16,7 @@
 			<view class="destination" wx:for="{{address}}" bindtap="clickAddress" wx:key="index" data-item="{{item}}">
 				<view class="destination-content">
 					<view class="content-image">
-						<image src="{{item.img || '../../assets/images/dingwei.png'}}"></image>
+						<image src="{{item.img || 'http://scapp.xysc16.com/upload/wmp/imgs/dingwei.png'}}"></image>
 					</view>
 					<view class="content">
 						<text class="content-name">{{item.title}}</text>
@@ -26,52 +29,4 @@
 		<view wx:if="{{historyLocation}}" class="clear-his" bindtap="clearHistory">清空历史记录</view>
 		<view wx:else class="no-his">没有历史记录</view>
 	</view>
-
-	<!-- <view class="wrapper">
-		<view class="home_comp">
-			<view class="home" bindtap="searchHome" data-item="{{home}}">
-				<image src="../../assets/images/home.png"></image>
-				<view class="text">
-					<view class="t">{{home.title || home}}</view>
-					<view class="b">家</view>
-				</view>
-			</view>
-			<view class="company" bindtap="searchCompany" data-item="{{company}}">
-				<image src="../../assets/images/company.png"></image>
-				<view class="text">
-					<view class="t">{{company.title || company}}</view>
-					<view class="b">公司</view>
-				</view>
-			</view>
-		</view>
-
-		<view class="used-location">
-			<view class="tit">常用地点</view>
-			<view class="list">
-				<view class="item" wx:for="{{usedLocation}}" wx:key="index" bindtap="searchUsed" data-item="{{item}}">
-					<image src="../../assets/images/dingwei.png"></image>
-					<view class="lo_name">{{item.title}}</view>
-				</view>
-			</view>
-		</view>
-
-		<view class="history">
-			<view class="tit">历史记录</view>
-			<scroll-view class="his_scroll" scroll-y="true" wx:if="{{historyLocation}}">
-				<block wx:for="{{historyLocation}}" wx:key="index">
-					<view class="item" bindtap="searchHistory" data-item="{{item}}">
-						<image src="../../assets/images/dingwei.png"></image>
-						<view class="his_cont">
-							<view class="his_name">{{item.title}}</view>
-							<view class="his_desc">{{item.address}}</view>
-						</view>
-					</view>
-				</block>
-			</scroll-view>
-            <view wx:else class="no-his">没有历史记录</view>
-            <view wx:if="{{historyLocation}}" class="clear-his" bindtap="clearHistory">清空历史记录</view>
-		</view>
-	</view> -->
-
-
 </view>

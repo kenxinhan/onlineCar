@@ -42,7 +42,7 @@ Page({
       pageSize:this.data.pageSize,
       titleSize:this.data.titleSize,
     }
-    http.postRequest("/passenger/message/getAllMessageByMessageTypeId?messageTypeId="+this.data.id+'&pageSize='+this.data.pageSize+'&titleSize='+this.data.titleSize, '', wx.getStorageSync('header'), res =>{
+    http.postRequest("/v1/passenger/message/getAllMessageByMessageTypeId?messageTypeId="+this.data.id+'&pageSize='+this.data.pageSize+'&titleSize='+this.data.titleSize, '', wx.getStorageSync('header'), res =>{
       console.log('消息详情：',res)
       this.setData({
         loading: false
@@ -77,7 +77,7 @@ Page({
   },
 
   hasRead(){
-    http.postRequest("/passenger/message/updateMessageReadState?messageTypeId="+this.data.id, '', wx.getStorageSync('header'), res =>{
+    http.postRequest("/v1/passenger/message/updateMessageReadState?messageTypeId="+this.data.id, '', wx.getStorageSync('header'), res =>{
       console.log('已读：',res)
       if(res.code === '1'){
       }

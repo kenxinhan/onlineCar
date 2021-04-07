@@ -11,7 +11,7 @@ Page({
       pageSize:10,
       currentPage:1
     }
-    http.getRequest("/passenger/center/availableCouponList",data,wx.getStorageSync('header'),res=>{
+    http.getRequest("/v1/passenger/center/availableCouponList",data,wx.getStorageSync('header'),res=>{
       console.log('优惠券：',res)
       if(res.code === '1'){
         let data = res.content;

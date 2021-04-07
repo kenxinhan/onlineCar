@@ -1,0 +1,25 @@
+<view class="cover" wx:if="{{showCover}}">
+    <view wx:if="{{modalData}}" class="cover-inner">
+      <view class="cover-title">{{modalData.couponName}}</view>
+      <view class="cover-num" wx:if="{{isPrice}}">
+        <image src="http://scapp.xysc16.com/upload/wmp/imgs/coupon.png" style="width:80rpx;height:80rpx;margin-right:20rpx;"></image>￥
+        <text style="font-size:36rpx;">{{spliceNum}}</text>
+      </view>
+      <view class="cover-num" wx:else>
+        <image src="http://scapp.xysc16.com/upload/wmp/imgs/coupon.png" style="width:80rpx;height:80rpx;margin-right:20rpx;"></image>
+        <text style="font-size:36rpx;">{{modalData.couponDescribe}}</text>
+      </view>
+      <view class="cover-time">有效时间：{{modalData.timeDescribe}}</view>
+      <view class="cover-btn" bindtap="exchangeConfirm" data-item="{{modalData}}">
+        {{timeDescribe.integralNumber}}积分立即兑换</view>
+      <image class="del-img" src="http://scapp.xysc16.com/upload/wmp/imgs/delete.png" catchtap="close"></image>
+
+    </view>
+    
+    <view wx:elif="{{abnormalData}}" class="cover-inner" style="padding-top: 80rpx;">
+        <view class="cover-title" style="margin-bottom:20rpx;">积分兑换</view>
+        <view class="cover-time" style="margin: 0 100rpx;">{{abnormalData}}</view>
+        <view class="cover-btn" catchtap="close">我知道了</view>
+        <image class="del-img" catchtap="close" src="http://scapp.xysc16.com/upload/wmp/imgs/delete.png"></image>
+      </view>
+  </view>

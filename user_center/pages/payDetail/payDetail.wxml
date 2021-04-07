@@ -1,101 +1,203 @@
-  <!-- 已完成订单 -->
-  <block wx:if="{{!isClosed}}">
-  	<view class="over">
-  		<view class="h2">
-  			<view class="str">{{startAddress}}</view>
-  			<view class="car-img">
-  				<image src="../../assets/images/car.png"></image>
-  			</view>
-  			<view class="end">{{endAddress}}</view>
-  		</view>
+<!-- 已完成订单 -->
+<block wx:if="{{!isClosed}}">
+	<view class="over" wx:if="{{fromOrderList}}">
+		<block wx-if="{{!exclusiveCar}}">
+			<view wx-if="{{!exclusiveCar}}" class="h2">
+				<view class="str">{{detailData.startAddress}}</view>
+				<view wx:if="{{!fixedLine}}" class="car-img">
+					<image src="http://scapp.xysc16.com/upload/wmp/imgs/line_mr.png"></image>
+				</view>
+				<view wx:else class="car-img-f">
+					<image wx:if="{{detailData.lineType == 0}}" src="http://scapp.xysc16.com/upload/wmp/imgs/line_mr.png"></image>
+					<image wx:elif="{{detailData.lineType == 1}}" src="http://scapp.xysc16.com/upload/wmp/imgs/line-pt.png"></image>
+					<image wx:elif="{{detailData.lineType == 2}}" src="http://scapp.xysc16.com/upload/wmp/imgs/line-gs.png"></image>
+				</view>
+				<view class="end">{{detailData.endAddress}}</view>
+			</view>
+		</block>
+		<!-- 包车 -->
+		<block wx:else>
+			<!-- 线路包车 -->
+			<view wx:if="{{detailData.lineType == 5 || detailData.lineType == 6}}" class="EXC-line">
+				<view class="EXC-line-str">{{detailData.startAddress}}</view>
+				<image wx:if="{{detailData.lineType == 6}}" src="http://scapp.xysc16.com/upload/wmp/imgs/line_fc.png"
+					style="width:60rpx;height:60rpx;"></image>
+				<image wx:elif="{{detailData.lineType == 5}}" src="http://scapp.xysc16.com/upload/wmp/imgs/line_mr.png"
+					style="width:60rpx;height:60rpx;"></image>
+				<view class="EXC-line-end">{{detailData.endAddress}}</view>
+			</view>
 
-  		<view class="driver-info">
-  			<view class="left">
-  				<image class="photo" src="../../assets/images/driver.png"></image>
-  				<view class="name">{{driverInfo.driverName}}</view>
-  			</view>
-  			<view class="right">
-  				<view class="top">
-  					<view class="l">
-  						<view class="company">{{driverInfo.belongCompany}}</view>
-  						<view class="car-num">{{driverInfo.carNumber}}</view>
-  					</view>
-  					<view class="r">
-  						<view class="id">编号：{{driverInfo.driverNo}}</view>
-  					</view>
-  				</view>
-  				<view class="btm">{{driverInfo.carDescribe}}</view>
-  			</view>
-  		</view>
-  		<view wx:if="{{driverInfo.isFriendDriver === 0 && !hasAdd}}" class="addFriend" bindtap="addFriend">
-  			<image src="../../assets/images/add.png"></image>
-  			<text>添加到好友司机</text>
-  		</view>
+			<!-- 时间包车 -->
+			<view wx:if="{{detailData.lineType == 7}}" class="EXC-time">
+				<view class="EXC-time-city">
+					<image src="../../assets/images/EXC-city.png" style="width:50rpx;height:50rpx;margin-right:10rpx;"></image>
+					<text>{{detailData.cityName}}</text>
+				</view>
+				<view class="EXC-time-info">
+					<view class="EXC-date">包车天数：{{detailData.number}}天</view>
+					<view class="EXC-distance">时长：{{detailData.rulesName}}</view>
+				</view>
+			</view>
+		</block>
 
-  	</view>
+		<block wx:if="{{!fixedLine}}">
+			<view class="driver-info">
+				<view class="left">
+					<image class="photo" src="{{detailData.driverCarInfo.driverHeadPicUrl || 'http://scapp.xysc16.com/upload/wmp/imgs/driver.png'}}">
+					</image>
+					<view class="name">{{detailData.driverCarInfo.driverName}}</view>
+				</view>
+				<view class="right">
+					<view class="top">
+						<view class="l">
+							<view class="company">{{detailData.driverCarInfo.belongCompany}}</view>
+							<view class="car-num">{{detailData.driverCarInfo.carNumber}}</view>
+						</view>
+						<view class="r">
+							<view class="order-num">{{detailData.driverCarInfo.orderTotal}}单</view>
+							<view class="id">编号：{{detailData.driverCarInfo.driverNo}}</view>
+						</view>
+					</view>
+					<view class="btm">{{detailData.driverCarInfo.bodyColor}} {{detailData.driverCarInfo.carDescribe}}</view>
+				</view>
+			</view>
 
-  	<view class="container">
-  		<view class="shadow-box">
-  			<view class="pay-title">
-  				<text class="font-30">车费详情</text>
-  			</view>
-  			<view class="pay-detail">
-  				<block wx:for="{{costList}}" wx:key="index">
-  					<view class="border-bottom">
-  						<view class="flex-box font-28">
-  							<text class="mini-pay">{{item.feeName}}</text>
-  							<text class="mini-pay">{{item.totalFee}}元</text>
-  						</view>
-  						<block wx:if="{{item.subCostList.length !== 0}}" wx:for="{{item.subCostList}}" wx:for-index="ind" wx:for-item="subItem" wx:key="ind">
-  							<view class="flex-box font-24 color-999">
-  								<text>{{subItem.timeFrame}}</text>
-  								<text>{{subItem.cost}}元</text>
-  							</view>
-  						</block>
+			<view class="temp-container">
+				<view wx:if="{{detailData.driverCarInfo.isFriendDriver === 0 && !hasAdd}}" class="addFriend" bindtap="addFriend">
+					<image src="http://scapp.xysc16.com/upload/wmp/imgs/add.png"></image>
+					<text>添加好友司机</text>
+				</view>
 
-  					</view>
-  				</block>
-  			</view>
+				<view class="call-service" style="width:{{detailData.driverCarInfo.isFriendDriver === 0 && !hasAdd ? '' : '100%'}}">
+					<image class="call-icon" bindtap="makePhoneCall" src="../../assets/images/servicer.png"></image>
+					<text class="call-text">联系客服</text>
+				</view>
+			</view>
+		</block>
 
-  			<view class="pay-tips">
-  				<text>*车费计算四舍五入取小数点后两位</text>
-  			</view>
+		<view wx:else class="temp-container">
+			<view class="call-service" style="width:100%">
+				<image class="call-icon" bindtap="makePhoneCall" src="../../assets/images/servicer.png"></image>
+				<text class="call-text">联系客服</text>
+			</view>
+		</view>
+	</view>
 
-  			<view class="call-service">
-  				<image class="call-icon" bindtap="makePhoneCall" src="../../assets/images/phone.png"></image>
-  				<text class="call-text">联系客服</text>
-  			</view>
-  		</view>
+	<!-- 远程摆渡司机信息 -->
+	<view wx:if="{{fixedLine}}" class="line-driver-list">
+		<view class="line-driver-item" wx:for="{{detailData.driverInfoList}}" wx:key="index">
+			<view class="l_d_lf">
+				<image src="{{item.imgUrl || 'http://scapp.xysc16.com/upload/wmp/imgs/driver.png'}}"></image>
+				<text>{{item.name}}</text>
+			</view>
+			<view class="l_d_md">
+				<view class="line-str-text">{{item.startStationName}}</view>
+				<view class="line-end-text">{{item.endStationName}}</view>
+			</view>
+			<view class="l_d_rt">
+				<image src="http://scapp.xysc16.com/upload/wmp/imgs/common_icon_phone.png" bindtap="callBDDriverPhone" data-phone="{{item.phone}}">
+				</image>
+			</view>
+		</view>
+	</view>
 
-  		<view class="rule" bindtap="accountRule">
-  			<text>计费规则></text>
-  		</view>
-  	</view>
-  </block>
+	<view class="container">
+		<view class="shadow-box" style="margin-top:{{!fromOrderList?'30rpx':''}}">
+			<block wx:if="{{taxi}}">
+				<view class="pay-title" style="margin-bottom:{{!fromOrderList?'20rpx':''}}">
+					<text class="taxi-title {{!fromOrderList?'end-taxi-title':''}}" >打表计价</text>
+				</view>
+			</block>
+			<block wx:else>
+				<view class="pay-title">
+					<text class="font-30">{{priceTitle}}</text>
+				</view>
+				<view class="pay-detail">
+					<block wx:for="{{detailData.costList}}" wx:key="index">
+						<view class="border-bottom">
+							<view class="flex-box font-28">
+								<text class="mini-pay">{{item.feeName}}</text>
+								<text class="mini-pay">{{item.totalFee}}元</text>
+							</view>
+							<block wx:if="{{item.subCostList.length !== 0}}" wx:for="{{item.subCostList}}" wx:for-index="ind"
+								wx:for-item="subItem" wx:key="ind">
+								<view class="flex-box font-24 color-999">
+									<text>{{subItem.timeFrame}}</text>
+									<text>{{subItem.cost}}元</text>
+								</view>
+							</block>
+						</view>
+					</block>
+				</view>
+			</block>
 
-  <view wx:else class="over">
-    	<view class="h2">
-  			<view class="str">{{startAddress}}</view>
-  			<view class="car-img">
-  				<image src="../../assets/images/car.png"></image>
-  			</view>
-  			<view class="end">{{endAddress}}</view>
-  		</view>
+			<view class="pay-tips">
+				<text wx:if="{{taxi}}">实际用车车费金额根据计价器计价为准</text>
+				<text wx:else>*车费计算四舍五入取小数点后两位</text>
+			</view>
 
-      <view class="tips">订单已被取消</view>
+			<view class="call-service" wx:if="{{!fromOrderList}}" style="margin-top:40rpx;">
+				<image class="call-icon" bindtap="makePhoneCall" src="../../assets/images/servicer.png"></image>
+				<text class="call-text">联系客服</text>
+			</view>
+		</view>
 
-      <view class="close-btm">
-         <view class="call-car" bindtap="callAgain">
-          <view>
-            <image src="../../assets/images/call-car.png"></image>
-          </view>
-          <view class="call-btn" bindtap="recall">重新叫车</view>
-         </view>
-         <view class="contact" bindtap="makePhoneCall">
-            <view>
-              <image src="../../assets/images/servicer.png"></image>
-            </view>
-            <view class="contact-btn">联系客服</view>
-         </view>
-      </view>
-  </view>
+		<view class="rule" bindtap="accountRule">
+			<text>计费规则></text>
+		</view>
+	</view>
+</block>
+
+<view wx:else class="over">
+	<block wx-if="{{!exclusiveCar}}">
+		<view class="h2">
+			<view class="str">{{detailData.startAddress}}</view>
+			<view class="car-img">
+				<image src="../../assets/images/car.png"></image>
+			</view>
+			<view class="end">{{detailData.endAddress}}</view>
+		</view>
+	</block>
+
+	<!-- 包车 -->
+	<block wx:else>
+		<!-- 线路包车 -->
+		<view wx-if="{{detailData.lineType == 5 || detailData.lineType == 6}}" class="EXC-line">
+			<view class="EXC-line-str">{{detailData.startAddress}}</view>
+			<image wx:if="{{detailData.lineType == 6}}" src="http://scapp.xysc16.com/upload/wmp/imgs/line_fc.png"
+				style="width:60rpx;height:60rpx;"></image>
+			<image wx:elif="{{detailData.lineType == 5}}" src="http://scapp.xysc16.com/upload/wmp/imgs/line_mr.png"
+				style="width:60rpx;height:60rpx;"></image>
+			<view class="EXC-line-end">{{detailData.endAddress}}</view>
+		</view>
+
+		<!-- 时间包车 -->
+		<view wx-if="{{detailData.lineType == 7}}" class="EXC-time">
+			<view class="EXC-time-city">
+				<image src="../../assets/images/EXC-city.png" style="width:50rpx;height:50rpx;margin-right:10rpx;"></image>
+				<text>{{detailData.cityName}}</text>
+			</view>
+			<view class="EXC-time-info">
+				<view class="EXC-date">包车天数：{{detailData.number}}天</view>
+				<view class="EXC-distance">时长：{{detailData.rulesName}}</view>
+			</view>
+		</view>
+	</block>
+
+	<view class="tips">订单已被取消</view>
+
+	<view class="close-btm">
+		<view class="call-car" bindtap="recall">
+			<view>
+				<image src="../../assets/images/call_car.png"></image>
+			</view>
+			<view class="call-btn">重新叫车</view>
+		</view>
+		<view class="contact" bindtap="makePhoneCall">
+			<view>
+				<image src="../../assets/images/servicer.png"></image>
+			</view>
+			<view class="contact-btn">联系客服</view>
+		</view>
+	</view>
+</view>

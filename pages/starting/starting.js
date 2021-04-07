@@ -1,13 +1,9 @@
-var QQMapWX = require('../../libs/qqmap-wx-jssdk.js');
-var qqmapsdk;
-qqmapsdk = new QQMapWX({
-  key: 'ACZBZ-XOJRU-AKQVD-BDUEX-2WJSZ-Y4BNN'
-});
+import qqmapsdk from '../../libs/qqMap';
 
 const app = getApp();
 Page({
   data: {
-    startCity: '', //目的地城市
+    startCity: '',
     value: '',
     address: [],
     showResList: false,
@@ -15,81 +11,102 @@ Page({
     historyLocation: null,
     home: null,
     company: null,
-    pois:null
+    pois: null,
+    fixedLine: false,
+    exclusiveCar: false,
+    taxi: false,
+    // friendDriver:false,
   },
-  onLoad() {
+  onLoad(opt) {
+    if (opt.from === 'fixedLine') {
+      this.setData({
+        fixedLine: true
+      })
+    }else if (opt.from === 'exclusiveCar') {
+      this.setData({
+        exclusiveCar: true
+      })
+    }else if (opt.from === 'taxi') {
+      this.setData({
+        taxi: true
+      })
+    }
+    // else if(opt.from === 'friendDriver'){
+    //   this.setData({
+    //     friendDriver:true
+    //   })
+    // }
     this.searchNearby();
     let historyLocation = wx.getStorageSync('historyLocation');
-    // let usedLocation = wx.getStorageSync('usedLocation');
     if (historyLocation) {
       this.setData({
         historyLocation,
       })
     }
-    // if (usedLocation) {
-    //   this.setData({
-    //     usedLocation
-    //   })
-    // }
-    this.setData({
-      startCity: app.globalData.startCity || app.globalData.originCity
-    })
   },
-  
-  onShow(){
-  //   let home = wx.getStorageSync('home') || '去设置';
-  //   let company = wx.getStorageSync('company') || '去设置';
-  //   if (home) {
-  //     this.setData({
-  //       home
-  //     })
-  //   }
-  //   if (company) {
-  //     this.setData({
-  //       company
-  //     })
-  //   }
+
+  onShow() {
+    if (this.data.fixedLine) {
+      this.setData({
+        startCity: app.globalData.lineStartCity || app.globalData.originCity
+      })
+    } else {
+      this.setData({
+        startCity: app.globalData.startCity || app.globalData.originCity
+      })
+    }
   },
 
   clickAddress(e) {
-    var item = e.currentTarget.dataset.item
-
-    app.globalData.startCity = item.city;
-    app.globalData.strAddress = item.title;
-    app.globalData.strLatitude = item.location.lat;
-    app.globalData.strLongitude = item.location.lng;
-
-    // let historyLocation = wx.getStorageSync('historyLocation') || [];
-    // if (historyLocation) {
-    //   if (historyLocation.length >= 10) {
-    //     historyLocation.pop()
-    //   }
-    //   historyLocation.forEach((val,index)=>{
-    //     if(val.id === item.id){
-    //       historyLocation.splice(index,1);
-    //     }
-    //   })
-    // }
-    // historyLocation.unshift(item)
-    // wx.setStorageSync('historyLocation', historyLocation)
-
-    // wx.redirectTo({
-    //   url: "/pages/index/index?fromStrLat="+item.location.lat+"&fromStrLng="+item.location.lng,
-    // })
-    wx.redirectTo({
-      url: "/pages/index/index",
-    })
-
+    let item = e.currentTarget.dataset.item
+    let pages = getCurrentPages();
+    let prevPages = pages[pages.length-2];
+    if (this.data.fixedLine) {
+      app.globalData.startCity = item.city;
+      app.globalData.lineStartAddress = item.title;
+      app.globalData.lineStartLat = item.location.lat;
+      app.globalData.lineStartLng = item.location.lng;
+      prevPages.setData({
+        fromStartDetail:true,
+        fromEndDetail:false,
+        lineAdcode:item.adcode
+      })
+      wx.navigateBack()
+    } else if(this.data.exclusiveCar){
+      app.globalData.EXCStartAddress = item.title;
+      app.globalData.EXCStartLat = item.location.lat;
+      app.globalData.EXCStartLng = item.location.lng;
+      prevPages.setData({
+        strAddress: item.title,
+        lat: item.location.lat,
+        lng: item.location.lng,
+        lineAdcode:item.adcode
+      })
+      prevPages.checkStartAddress();
+      wx.navigateBack()
+    } else {
+      app.globalData.startCity = item.city;
+      app.globalData.strAddress = item.title;
+      app.globalData.strLatitude = item.location.lat;
+      app.globalData.strLongitude = item.location.lng;
+      if(this.data.taxi){
+        prevPages.setData({
+          currentTab: 3
+        })
+        wx.navigateBack();
+      } else{
+        wx.navigateBack();
+      }
+    }
   },
 
-  searchNearby(){
+  searchNearby() {
     let _this = this;
     qqmapsdk.reverseGeocoder({
-      location:app.globalData.strLatitude+','+app.globalData.strLongitude,
-      get_poi:1,
-      success(res){
+      location: app.globalData.strLatitude + ',' + app.globalData.strLongitude,
+      get_poi: 1,
+      success(res) {
         let pois = res.result.pois;
-        console.log('附近',pois)
         _this.setData({
           address: pois,
           pois
@@ -108,7 +125,6 @@ Page({
         keyword: value,
         region: _this.data.startCity,
         success: function (res) {
-          console.log(res)
           let data = res.data
           _this.setData({
             address: data,
@@ -120,88 +136,22 @@ Page({
     } else {
       this.setData({
         address: this.data.pois,
-        value:'',
+        value: '',
       })
     }
   },
 
   //切换城市
   chooseCity() {
-    wx.redirectTo({
-      url: "/pages/searchCity/searchCity?urlFrom=1",
-    })
+    if(this.data.fixedLine){
+      wx.navigateTo({
+        url: "/pages/searchCity/searchCity?urlFrom=1&type=fixedLine",
+      })
+    }else{
+      wx.navigateTo({
+        url: "/pages/searchCity/searchCity?urlFrom=1",
+      })
+    }
   },
-
-  // clearHistory() {
-  //   let _this = this;
-  //   wx.showModal({
-  //     content: "确定清空历史记录？",
-  //     success(res) {
-  //       if (res.confirm) {
-  //         _this.setData({
-  //           historyLocation: null
-  //         })
-  //         wx.removeStorageSync('historyLocation')
-  //       }
-  //     }
-  //   })
-  // },
-
-  // searchHome(e){
-  //   let item = e.currentTarget.dataset.item
-  //   if (item.title) {
-  //   app.globalData.startCity = item.city;
-  //   app.globalData.strAddress = item.title;
-  //   app.globalData.strLatitude = item.location.lat;
-  //   app.globalData.strLongitude = item.location.lng;
-  //   wx.redirectTo({
-  //     url: "/pages/index/index?fromStrLat="+item.location.lat+"&fromStrLng="+item.location.lng,
-  //   })
-  // }else{
-  //   wx.navigateTo({
-  //     url: "/user_center/pages/searchUsedAddress/searchUsedAddress?getWhich=home",
-  //   })
-  // }
-  // },
-
-  // searchCompany(e){
-  //   let item = e.currentTarget.dataset.item
-  //   if (item.title) {
-  //   app.globalData.startCity = item.city;
-  //   app.globalData.strAddress = item.title;
-  //   app.globalData.strLatitude = item.location.lat;
-  //   app.globalData.strLongitude = item.location.lng;
-  //   wx.redirectTo({
-  //     url: "/pages/index/index?fromStrLat="+item.location.lat+"&fromStrLng="+item.location.lng,
-  //   })
-  // }else{
-  //   wx.navigateTo({
-  //     url: "/user_center/pages/searchUsedAddress/searchUsedAddress?getWhich=company",
-  //   })
-  // }
-  // },
-
-  // searchUsed(e){
-  //   let item = e.currentTarget.dataset.item
-  //   app.globalData.startCity = item.city;
-  //   app.globalData.strAddress = item.title;
-  //   app.globalData.strLatitude = item.location.lat;
-  //   app.globalData.strLongitude = item.location.lng;
-  //   wx.redirectTo({
-  //     url: "/pages/index/index?fromStrLat="+item.location.lat+"&fromStrLng="+item.location.lng,
-  //   })
-  // },
-
-
-  // searchHistory(e){
-  //   let item = e.currentTarget.dataset.item
-  //   app.globalData.startCity = item.city;
-  //   app.globalData.strAddress = item.title;
-  //   app.globalData.strLatitude = item.location.lat;
-  //   app.globalData.strLongitude = item.location.lng;
-  //   wx.redirectTo({
-  //     url: "/pages/index/index?fromStrLat="+item.location.lat+"&fromStrLng="+item.location.lng,
-  //   })
-  // },
 
 })

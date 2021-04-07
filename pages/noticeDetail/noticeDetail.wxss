@@ -1,47 +1,61 @@
 .container{
   width: 100%;
+  padding-top: 20rpx;
   box-sizing: border-box;
+  background-color: #F2F2F2;
+  color: #333;
 }
 
 .item{
   position: relative;
-  padding: 20rpx;
+  padding: 40rpx 20rpx;
   box-sizing: border-box;
-  box-shadow: 0rpx 0rpx 15rpx #ccc;
-  margin: 40rpx;
+  margin: 0 30rpx 20rpx;
+  background-color: #fff;
+  border-radius: 10rpx;
 }
 
 .tit{
   font-weight: bold;
-  font-size: 34rpx;
-  margin-bottom: 50rpx;
+  font-size: 32rpx;
+  margin-bottom: 20rpx;
 }
 
 .cont{
-  color: #999;
-  font-size: 34rpx;
-  margin-bottom: 30rpx;
+  font-size: 28rpx;
+  margin-bottom: 20rpx;
 }
 
 .time{
-  font-size: 34rpx;
-  color: #bbb;
+  font-size: 28rpx;
+  color: #999;
   text-align: right;
-  padding-bottom: 50rpx;
 }
 
 .tag-new{
   position: absolute;
   right: 0;
   top: 0;
-  width: 60rpx;
-  height: 60rpx;
-  line-height: 60rpx;
-  text-align: center;
+  width: 100rpx;
+  height: 50rpx;
   box-sizing: border-box;
   padding: 5rpx 10rpx;
-  background-color: #f60;
   color: #fff;
-  font-size: 30rpx;
-  font-weight: bold;
+  font-size: 28rpx;
+}
+
+.tag-new>image{
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100rpx;
+  height: 50rpx;
+}
+.tag-new>text{
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100rpx;
+  line-height: 50rpx;
+  text-align: center;
 }

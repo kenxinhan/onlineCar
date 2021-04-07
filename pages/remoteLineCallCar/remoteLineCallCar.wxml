@@ -1,0 +1,108 @@
+<view class="fixed-line">
+	<view wx:if="{{!fromScan}}" class="curr_city">
+		<view class="city-left">
+			当前所在城市：
+			<text>{{currentCity}} </text>
+		</view>
+		<view class="city-right" bindtap="reChooseLine">
+			<image src="http://scapp.xysc16.com/upload/wmp/imgs/line-rechoose.png"></image>
+			<text> 重新选择线路</text>
+		</view>
+	</view>
+
+	<view class="line-wrapper" style="padding-bottom: 40rpx">
+		<!-- 非扫码 -->
+		<block wx:if="{{!fromScan}}">
+			<view class="line-which">
+				<view class="line-start" bindtap="reChooseLine">{{lineItem.startStationName}}</view>
+				<image wx:if="{{lineItem.lineType == 0}}" src="http://scapp.xysc16.com/upload/wmp/imgs/line_mr.png" class="line_car_png"></image>
+				<image wx:elif="{{lineItem.lineType == 1}}" src="http://scapp.xysc16.com/upload/wmp/imgs/line-pt.png" class="line_car_png"></image>
+				<image wx:elif="{{lineItem.lineType == 2}}" src="http://scapp.xysc16.com/upload/wmp/imgs/line-gs.png" class="line_car_png"></image>
+				<view class="line-end" bindtap="reChooseLine">{{lineItem.endStationName}}</view>
+			</view>
+
+			<view class="line-detail-address">
+				<view class="circle-str"></view>
+				<view bindtap="lineDetailStr">
+					<view class="didi-input-str">{{lineStartAddress}}</view>
+				</view>
+				<view bindtap="lineDetailEnd">
+					<view type="text" class="didi-input-end">{{lineEndAddress}}</view>
+				</view>
+				<view class="circle-end"></view>
+			</view>
+		</block>
+
+		<!-- 扫码进入  -->
+		<block wx:else>
+			<view class="scan-line-list">
+				<view class="scan-line-item {{scanLineActiveIndex === index ? 'scan-line-item-active' : ''}}"
+					wx:for="{{scanLineList}}" wx:key="index" data-item="{{item}}" data-index="{{index}}"
+					bindtap="scanLineItemClick">
+					<view class="scan-line-start">{{item.startStationName}}</view>
+					<image wx:if="{{item.lineType == 0}}" src="http://scapp.xysc16.com/upload/wmp/imgs/line_mr.png" class="line_car_png"></image>
+					<image wx:elif="{{item.lineType == 1}}" src="http://scapp.xysc16.com/upload/wmp/imgs/line-pt.png" class="line_car_png"></image>
+					<image wx:elif="{{item.lineType == 2}}" src="http://scapp.xysc16.com/upload/wmp/imgs/line-gs.png" class="line_car_png"></image>
+					<view class="scan-line-end">{{item.endStationName}}</view>
+				</view>
+			</view>
+		</block>
+
+
+		<view class="line-price">
+			<view class="line-tot {{fromScan?'scan-no-bt':''}}" style="border-top:{{fromScan?'none':'1px solid #f5f5f5'}}">
+				<view class="tot-l">
+					￥<text>{{linePrice}}</text>
+				</view>
+
+				<view class="tot-r">
+					<view class="tot-rt">立省{{reducePrice}}元</view>
+					<view class="line-desc">原价￥{{lineDescPrice}}</view>
+				</view>
+			</view>
+			<view class="line-coupon">
+				<view wx:if="{{curCouponData}}" class="choose-coupon-text">{{curCouponData.couponDescribe}}</view>
+				<view class="choose-coupon-btn" bindtap="chooseCoupon">选择优惠券</view>
+			</view>
+		</view>
+
+		<view class="lineTimeBox" wx:if="{{!fromScan}}">
+			<image class="timeImg" src="http://scapp.xysc16.com/upload/wmp/imgs/time.png"></image>
+			<picker class='time-picker' mode="multiSelector" bindchange="bindStartMultiPickerChange" bindtap='pickerTap'
+				bindcolumnchange="bindMultiPickerColumnChange" value="{{multiIndex}}" range="{{multiArray}}">{{lineStartDate}}
+			</picker>
+		</view>
+
+		<view class="line-person-num">
+			<image src="http://scapp.xysc16.com/upload/wmp/imgs/user-num.png"></image>
+			<view class="line-per-wrapper">
+				<block wx:for="{{[1,2,3,4]}}" wx:key="*this">
+					<view class="line-per-item {{lineCurPerNum === item ? 'line-per-item-active' : ''}}" bindtap="clickPerNum"
+						data-num="{{item}}">{{item}}人</view>
+				</block>
+			</view>
+		</view>
+
+		<label class="agreement" data-state="{{agreementChecked}}" bindtap="agreementChange">
+			<checkbox value="{{agreementChecked}}" checked="{{agreementChecked}}" style="zoom:0.8;"></checkbox>
+			<text> 我已同意该行程中可能存在多人合乘</text>
+		</label>
+
+		<button wx:if="{{!fromScan}}" class="line-btn {{disableCall?'disable-call':''}}" bindtap="lineCallCar">远程呼叫</button>
+		<button wx:else class="line-btn {{disableCall?'disable-call':''}}" bindtap="scanLineCallCar">付款乘车</button>
+
+	</view>
+
+	<movable-area class="movable-area">
+		<movable-view class="movable-view" direction="all" x="350" y="140" catchtap="showSlideCoupon">
+			<image class="integral-img" src="http://scapp.xysc16.com/upload/wmp/imgs/jifen2.gif"></image>
+		</movable-view>
+	</movable-area>
+
+	<slideCoupon wx:if="{{showCoupon}}" class="slide-comp" fromIcon="{{isFromIcon}}" params="{{slideCouponParams}}"
+		hasChooseId="{{hasChooseId}}" showCoupon="{{showCoupon}}" bindCouponState="couponStateHandle"
+		bindHasChooseCouponData="onHasChooseCouponData" bindExchangeItem="onExchangeItem"></slideCoupon>
+
+	<integralExchangeModal wx:if="{{showIntegralExchangeModal}}" modalData="{{exchangeItem}}"
+		abnormalData="{{abnormalData}}" isBack="{{isBack}}" bindCoverState="CoverState"></integralExchangeModal>
+</view>

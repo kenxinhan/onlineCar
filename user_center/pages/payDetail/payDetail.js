@@ -11,28 +11,69 @@ Page({
     costList: [],
     hasAdd: false,
     areaCode:null,
+    detailData:null,
+    callCar:false,
+    fixedLine:false,
+    BDFixedLine:false,
+    priceTitle:'车费详情',
+    exclusiveCar:false, // 包车
+    taxi:false, 
+    fromOrderList:false
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    if (options.orderNo) {
-      http.getRequest('/passenger/center/orderDetail?orderNo='+options.orderNo, '', wx.getStorageSync('header'), res => {
+    let driver = JSON.parse(options.driver);
+    console.log('opt:',driver)
+    // this.setData({
+    //   opt : driver
+    // })
+    if(options.from && options.from === 'orderList'){
+      wx.setNavigationBarTitle({
+        title: '订单详情',
+      })
+      this.setData({
+        fromOrderList:true
+      })
+    }
+    if(driver){
+      if(driver.businessType == 1){
+       this.setData({
+         callCar:true,
+         priceTitle:'车费详情',
+       })
+     }else if(driver.businessType == 6 || driver.businessType == 7){ 
+       this.setData({
+         fixedLine:true,
+         BDFixedLine:true,
+         priceTitle:'远程车费详情',
+       })
+     }else if(driver.businessType == 9){
+       this.setData({
+         exclusiveCar:true,
+         priceTitle:'包车车费详情',
+       })
+     }else if(driver.businessType == 10 || driver.driverType == 6){
+       this.setData({
+         taxi:true
+       })
+     }
+    }
+    if (driver.orderNo) {
+      http.getRequest('/v1/passenger/center/orderDetail?orderNo='+driver.orderNo+'&businessType='+driver.businessType, '', wx.getStorageSync('header'), res => {
         console.log('订单详情：', res)
         if (res.code === '1') {
           this.setData({
-            startAddress: res.content.startAddress,
-            endAddress: res.content.endAddress,
-            driverInfo: res.content.driverCarInfo,
-            costList: res.content.costList,
-            areaCode:res.content.areaCode
+            opt : res.content,
+            detailData:res.content
           })
-          if (options.status === '已完成') {
+          if (driver.orderStateName === '已完成') {
             this.setData({
               isClosed: false,
             })
-          } else if(options.status === '已关闭') {
+          } else if(driver.orderStateName === '已关闭') {
             this.setData({
               isClosed: true,
             })
@@ -62,22 +103,14 @@ Page({
 
   accountRule() {
     wx.navigateTo({
-      url: '/pages/priceRules/priceRules?code='+this.data.areaCode,
-    })
-  },
-
-  callAgain() {
-    wx.redirectTo({
-      url: '/pages/index/index',
+      url: '/pages/priceRules/priceRules?code='+this.data.detailData.areaCode+'&driver='+JSON.stringify(this.data.opt)+'&from=payDetail',
     })
   },
 
   addFriend() {
     if (!this.data.hasAdd) {
-      http.postRequest("/passenger/friendDriver/attentionOrCancel?driverNo="+this.data.driverInfo.driverNo, '', wx.getStorageSync('header'), res => {
-        console.log('添加好友：', res)
+      http.postRequest("/v1/passenger/friendDriver/attentionOrCancel?driverNo="+this.data.detailData.driverCarInfo.driverNo, '', wx.getStorageSync('header'), res => {
         if (res.code === '1') {
-          console.log('添加成功')
           wx.showToast({
             title: '添加成功',
           })
@@ -92,10 +125,23 @@ Page({
   },
 
   recall(){
-    wx.redirectTo({
+    wx.reLaunch({
       url: '/pages/index/index',
     })
-  }
+  },
+
+  callBDDriverPhone(e){
+    let phone = e.currentTarget.dataset.phone;
+    wx.makePhoneCall({
+      phoneNumber: phone,
+      success: function () {
+        console.log('拨打成功')
+      },
+      fail: function () {
+        console.log('拨打失败')
+      }
+    })
+  },
 
 
 })

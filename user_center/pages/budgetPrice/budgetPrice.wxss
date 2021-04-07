@@ -7,16 +7,25 @@
 }
 .priceBox{
   padding: 30rpx;
+  padding-top: 0;
   border-radius: 5px;
   box-sizing: border-box;
   background-color: #fff;
   box-shadow: 5rpx 9rpx 9rpx #ddd;
 }
 
+.header{
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
 .listBox{
   padding-bottom: 20rpx;
   margin-bottom: 20rpx;
-  border-bottom: 1rpx solid #ccc;
+  border-bottom: 1rpx solid #f2f2f2;
 }
 
 .list-title{
@@ -41,7 +50,7 @@
 }
 
 .text-24{
-  font-size: 30rpx;
+  font-size: 28rpx;
   color: #999;
   margin: 8rpx 0;
 }

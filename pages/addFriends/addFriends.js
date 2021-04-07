@@ -6,7 +6,7 @@ Page({
     addText: '加好友',
     driverInfo:null,
     value:'',
-    driverImg:'../../assets/images/driver.png'
+    driverImg:'http://scapp.xysc16.com/upload/wmp/imgs/driver.png'
   },
 
   /**
@@ -37,7 +37,7 @@ Page({
   },
 
   searchDriver(){
-    http.getRequest("/passenger/friendDriver/searchDriver?driverNo="+this.data.value, '', wx.getStorageSync('header'), res => {
+    http.getRequest("/v1/passenger/friendDriver/searchDriver?driverNo="+this.data.value, '', wx.getStorageSync('header'), res => {
       console.log('查询好友司机信息：',res)
       if(res.code === '1'){
         this.setData({
@@ -71,8 +71,7 @@ Page({
   
   add(){
     if(this.data.addText === '加好友'){
-      http.postRequest("/passenger/friendDriver/attentionOrCancel?driverNo="+this.data.driverInfo.driverNo,'',wx.getStorageSync('header'),res=>{
-        console.log('添加好友：',res)
+      http.postRequest("/v1/passenger/friendDriver/attentionOrCancel?driverNo="+this.data.driverInfo.driverNo,'',wx.getStorageSync('header'),res=>{
         if(res.code === '1'){
           wx.hideLoading();
           this.setData({

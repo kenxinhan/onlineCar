@@ -1,310 +1,283 @@
-<!--index.wxml-->
-<!-- <loading hidden="{{hiddenLoading}}">加载中...</loading> -->
-<view class="">
-	<view class="section">
-		<view class="nav-me" bindtap="showUser">
-			<image src="../../assets/images/nav-me.png"></image>
+<view>
+	<view hidden="{{fromFriendUseCart}}">
+		<view class="section">
+			<view class="nav-me" bindtap="showUser">
+				<image src="../../assets/images/nav-me.png"></image>
+			</view>
+	
+			<scroll-view scroll-x="true" class="nav" enable-flex="true" scroll-left="{{navScrollLeft}}" scroll-with-animation="{{true}}">
+				<view>
+					<block wx:for="{{navData}}" wx:for-index="id" wx:for-item="navItem" wx:key="index">
+						<view class="nav-item {{currentTab == navItem.id ?'active':''}}" data-item="{{navItem}}" bindtap="switchNav">{{navItem.name}}</view>
+					</block>
+				</view>
+			</scroll-view>
+	
+			<view class="notice" bindtap="toMsg">
+				<image src="../../assets/images/notice.png"></image>
+				<!-- <image src="../../assets/images/notice1.png"></image> -->
+			</view>
+	
+			<view class="add-friends" bindtap="addFriends">
+				<image src="../../assets/images/add-friend.png"></image>
+			</view>
 		</view>
-
-		<!-- <scroll-view scroll-x="true" class="nav" scroll-left="{{navScrollLeft}}" scroll-with-animation="{{true}}">
-			<block wx:for="{{navData}}" wx:for-index="id" wx:for-item="navItem" wx:key="index">
-				<view class="nav-item {{currentTab == navItem.id ?'active':''}}" data-name="{{navItem.name}}" data-current="{{navItem.id}}" bindtap="switchNav">{{navItem.name}}</view>
+	</view>
+	
+	
+	<view hidden="{{isDriverFriends || fixedLine}}">
+		<view class="map_container" style="margin-top:{{fromFriendUseCart?'0rpx':'108rpx'}}">
+			<map class='map' id="indexMap" style="width:{{ScreenTotalW}}rpx;height:{{ScreenTotalH}}rpx;" longitude='{{longitude}}' latitude='{{latitude}}' scale='{{scale}}' markers='{{markers}}' polyline='{{polyline}}' circles="{{circles}}" bindregionchange="bindregionchange" show-location="true">
+				<image class="current-site-icon" src="http://scapp.xysc16.com/upload/wmp/imgs/mapicon_navi_s.png"></image>
+				<image bindtap="getMyLocation" class="current-mylocation" src="../../assets/images/location.png"></image>
+			</map>
+		</view>
+	</view>
+	
+	<view class="footer-tab-title" wx:if="{{canAppointment && !isDriverFriends && canChooseStatus}}">
+		<view class="flex-box font-30">
+				<view hidden="{{hideNowTab}}" class="flex-item {{changeTab == 1 ? 'footerActive' : ''}}" data-current="1" bindtap="footerTab">现在</view>
+				<view class="flex-item {{changeTab == 2 ? 'footerActive' : ''}}" data-current="2" bindtap="footerTab">预约</view>
+		</view>
+		<view class="orderTimeBox" hidden="{{onlyNowTime}}">
+			<image class="timeImg" src="http://scapp.xysc16.com/upload/wmp/imgs/time.png"></image>
+			<picker class='time-picker' mode="multiSelector" bindchange="bindStartMultiPickerChange" bindtap='pickerTap' bindcolumnchange="bindMultiPickerColumnChange" value="{{multiIndex}}" range="{{multiArray}}">{{startDate}}</picker>
+		</view>
+	</view>
+	
+	<!-- 扫码 -->
+	<view class="footerBox {{fromScan?'scan-ft':''}}" wx:if="{{!isDriverFriends && !fixedLine}}">
+		<view class="nowTime">
+			<block wx:if="{{!fromScan}}">
+				<view class="circle-str"></view>
+				<view bindtap="toStarting">
+					<view class="didi-input-str" style="color: #333">{{startAddress}}</view>
+				</view>
+				<view bindtap="toDestination">
+					<view class="didi-input-end" style="color: #999">{{destination || '您要去哪儿'}}</view>
+				</view>
+				<view class="circle-end"></view>
 			</block>
-		</scroll-view> -->
-
-		<view class="nav">
-			<block wx:for="{{navData}}" wx:for-index="id" wx:for-item="navItem" wx:key="index">
-				<view class="nav-item {{currentTab == navItem.id ?'active':''}}" data-name="{{navItem.name}}" data-current="{{navItem.id}}" bindtap="switchNav">{{navItem.name}}</view>
+	
+			<block wx:else>
+				<view class="scan-address">
+					<view type="text" class="didi-input-end scan-ipt" bindtap="toDestination" data-from="scan" style="color: #999">{{destination || '您要去哪儿'}}</view>
+				</view>
+				<view class="circle-end scan-c"></view>
+				<button class="scan-btn" bindtap="scanBtn">开始行程</button>
+			</block>
+	
+		</view>
+	</view>
+	
+	<!-- 通知/优惠券 -->
+	<view class="notice-cover" wx:if="{{showNotice || showCoupon}}">
+	
+		<block wx:if="{{showNotice}}">
+			<view class="notice-wrapper">
+				<swiper class="notice-swiper" indicator-dots="true" indicator-active-color="#FF8008" autoplay="true" interval="5000" circular="true">
+					<block wx:for="{{noticeCont}}" wx:key="index">
+						<swiper-item>
+							<view class="notice_tit">{{item.title}}</view>
+							<image wx:if="{{item.picUrl}}" class="notice_img" src="{{item.picUrl}}" bindtap="toOut" data-href="{{item.hrefUrl}}"></image>
+							<scroll-view wx:else class="notice_cont" scroll-y="true" enable-flex="true">
+								<view>{{item.content}}</view>
+							</scroll-view>
+						</swiper-item>
+					</block>
+				</swiper>
+				<view class="close-notice" bindtap="closeNotice">
+					<image src="http://scapp.xysc16.com/upload/wmp/imgs/close.png"></image>
+				</view>
+			</view>
+		</block>
+	
+		<block wx:if="{{showCoupon}}">
+			<view class="coupon-wrapper">
+				<image class="bg_bg" src="http://scapp.xysc16.com/upload/wmp/imgs/popup_bg01.png"></image>
+				<image class="sm_bg" src="http://scapp.xysc16.com/upload/wmp/imgs/popup_bg02.png"></image>
+				<view class="cou_tit">恭喜获得</view>
+				<view class="cou_cont">
+					<scroll-view class="cou_scroll" scroll-y="true" enable-flex="true">
+						<view class="cou_item" wx:for="{{couponList}}" wx:key="index">
+							<image class="ci_bg" src="http://scapp.xysc16.com/upload/wmp/imgs/youhuiquan_bg01.png"></image>
+							<image class="ci_tr" src="http://scapp.xysc16.com/upload/wmp/imgs/youhuiquan_biaoqian01.png"></image>
+							<view class="cou_left">
+								<view class="cou_price" wx:if="{{item.couponType == 1}}">￥<text>{{item.couponValue}}</text></view>
+								<view class="cou_price" wx:if="{{item.couponType == 2}}"><text>{{item.couponValue}}</text>折</view>
+							</view>
+							<view class="cou_right">
+								<view class="cou_name">{{item.couponName}}</view>
+								<view class="cou_time">{{item.validateTimeDesc}}</view>
+							</view>
+							<view class="cou_num">{{item.couponNumber}}</view>
+						</view>
+					</scroll-view>
+				</view>
+				<view class="cou_tip">已放进您的账户</view>
+				<view class="cou_btn" bindtap="couponCheck">
+					<image src="http://scapp.xysc16.com/upload/wmp/imgs/popup_button.png"></image>
+					<view class="cou_check">立即查看</view>
+				</view>
+				<view class="close_cou" bindtap="closeCoupon">
+					<image src="http://scapp.xysc16.com/upload/wmp/imgs/popup_guanbi.png"></image>
+				</view>
+			</view>
+		</block>
+	
+	</view>
+	
+	<!-- 远程 -->
+	<view wx:if="{{fixedLine}}" class="fixed-line">
+		<view class="cur-city" bindtap="chooseLineCity">
+			<text>当前城市：{{currentCity}} </text>
+			<image src="http://scapp.xysc16.com/upload/wmp/imgs/arrow-btm.png" style="width:22rpx;height:22rpx"></image>
+		</view>
+	
+		<scroll-view wx:if="{{hasCityLine}}" scroll-y="true" enable-flex="true" lower-threshold="100" style="height: 92%;" bindscrolltolower="scrollToLower">
+			<!-- 常用线路 -->
+			<view class="list">
+				<view class="title" bindtap="EXC_toLocalMap">常用线路</view>
+				<!-- 有数据 -->
+				<view wx:if="{{usedLineList.length !== 0}}" class="sub-item" bindtap="chooseStation" wx:for="{{usedLineList}}" wx:key="index" data-item="{{item}}">
+					<view class="sub-title">{{item.lineName}}</view>
+					<view class="sub-price">
+						<view class="actual-price">￥{{item.singlePrice}}</view>
+						<view class="del-price">￥{{item.virtualPrice}}</view>
+					</view>
+				</view>
+				<!-- 无数据 -->
+				<view hidden="{{usedLineList.length !== 0}}" class="no-line">没有您的常用线路记录</view>
+			</view>
+	
+			<!-- 所有线路 -->
+			<view class="list" wx:if="{{allLineList}}">
+				<view class="title">所有线路</view>
+				<view class="sub-item" bindtap="chooseStation" wx:for="{{allLineList}}" wx:key="index" data-item="{{item}}">
+					<view class="sub-title">{{item.lineName}}</view>
+					<view class="sub-price">
+						<view class="actual-price">￥{{item.singlePrice}}</view>
+						<view class="del-price">￥{{item.virtualPrice}}</view>
+					</view>
+				</view>
+			</view>
+			<view style="text-align: center;margin: 10px;font-size:28rpx">
+				<view wx:if="{{loading}}">加载中...</view>
+				<view wx:if="{{noMore}}">没有更多线路了</view>
+			</view>
+		</scroll-view>
+	
+		<view wx:else class="no-line-list">
+			<image src="http://scapp.xysc16.com/upload/wmp/imgs/no-line.png"></image>
+			<text>该城市暂时未开通服务</text>
+		</view>
+	</view>
+	
+	
+	<!-- 包车 -->
+	<view wx:if="{{exclusiveCar}}" class="exclusive-car">
+		<view class="cur-city exclusive-car-city" bindtap="chooseEXCCity">
+			<text>当前城市：{{EXC_city}} </text>
+			<image src="http://scapp.xysc16.com/upload/wmp/imgs/arrow-btm.png" style="width:22rpx;height:22rpx"></image>
+		</view>
+	
+		<scroll-view wx:if="{{hasCityLine}}" scroll-y="true" enable-flex="true" lower-threshold="100" style="height: 92%;" bindscrolltolower="scrollToLower">
+			<view class="list">
+				<view class="sub-item" bindtap="chooseExclusiveCarLine" wx:for="{{EXC_lineList}}" wx:key="index" data-item="{{item}}">
+					<view class="sub-title">{{item.name}}</view>
+					<view class="sub-price">
+						<view class="actual-price">￥{{item.singlePrice}}</view>
+						<view class="del-price">￥{{item.virtualPrice}}</view>
+					</view>
+				</view>
+			</view>
+			<view style="text-align: center;margin: 10px;font-size:28rpx">
+				<view wx:if="{{loading}}">加载中...</view>
+				<view wx:if="{{noMore}}">没有更多线路了</view>
+			</view>
+		</scroll-view>
+	
+		<view wx:else class="no-line-list">
+			<image src="http://scapp.xysc16.com/upload/wmp/imgs/no-line.png"></image>
+			<text>该城市暂时未开通服务</text>
+		</view>
+	</view>
+	
+	<!-- 好友司机 -->
+	<view class="driver-friends" wx:if="{{isDriverFriends}}" bindtap="hideDelModal">
+		<view class="bg" wx:if="{{noFriends}}">
+			<image src="http://scapp.xysc16.com/upload/wmp/imgs/no-friend.png"></image>
+			<view>您还没有好友司机~</view>
+		</view>
+	
+		<view class="list" wx:else>
+			<block wx:for="{{driver}}" wx:key="index">
+				<view class="item" bindlongpress="delFriend" data-id="{{item.driverNo}}" bindtap="hideDelModal">
+					<view class="pt">
+						<image class="photo" src="{{item.headPicUrl || driverImg}}"></image>
+						<view class="name">{{item.driverName}}</view>
+					</view>
+	
+					<view class="driver-info">
+						<view class="inner">
+							<view class="left">
+								<view class="driver-type" style="margin-bottom:14rpx">{{item.driverTypeName	}}</view>
+								<view class="car-num">{{item.carNumber}}</view>
+							</view>
+							<view class="right">
+								<view class="company" style="margin-bottom:14rpx">{{item.belongCompany}}</view>
+								<view class="car-id">编号：{{item.driverNo}}</view>
+							</view>
+						</view>
+						<view class="btm">
+							<view class="car_desc">{{item.bodyColor}} {{item.carDescribe}}</view>
+							<image src="http://scapp.xysc16.com/upload/wmp/imgs/common_icon_phone.png" data-phone="{{item.phone}}" bindtap="callPhone"></image>
+						</view>
+	
+					</view>
+					<view class="distance">{{item.distance?'距离'+item.distance:item.stateName}}</view>
+					<view class="use-car" data-item="{{item}}" bindtap="useCart">叫车</view>
+					<view class="del-friend" wx:if="{{showDel === item.driverNo}}" bindtap="confirmDel" data-id="{{item.driverNo}}">删除好友司机</view>
+				</view>
 			</block>
 		</view>
-
-		<view class="notice" bindtap="toMsg">
-			<image src="../../assets/images/notice.png"></image>
-			<!-- <image src="../../assets/images/notice1.png"></image> -->
-		</view>
-
-		<view class="add-friends" bindtap="addFriends">
-			<image src="../../assets/images/add-friend.png"></image>
-		</view>
+		<view class="dr_tips">最多只能加8位好友司机哦~</view>
+	
 	</view>
-</view>
-
-
-<view hidden="{{isDriverFriends || fixedLine}}">
-	<view class="map_container">
-		<map class='map' id="indexMap" style="width:{{ScreenTotalW}}rpx;height:{{ScreenTotalH}}rpx;" longitude='{{longitude}}' latitude='{{latitude}}' scale='{{scale}}' markers='{{markers}}' polyline='{{polyline}}' circles="{{circles}}" bindregionchange="bindregionchange" show-location="true">
-			<image class="current-site-icon" src="../../assets/images/mapicon_navi_s.png"></image>
-			<image bindtap="getMyLocation" class="current-mylocation" src="../../assets/images/location.png"></image>
-		</map>
-	</view>
-</view>
-
-<view class="footer-tab-title" wx:if="{{canAppointment && !isDriverFriends && canChooseStatus}}">
-	<view class="flex-box font-30">
-		<block wx:for="{{footerTabData}}" wx:for-index="id" wx:key="index">
-			<view class="flex-item {{changeTab == item.id ? 'footerActive' : ''}}" data-current="{{item.id}}" bindtap="footerTab">
-				{{item.title}}
-			</view>
-		</block>
-	</view>
-	<view class="orderTimeBox" hidden="{{onlyNowTime}}">
-		<image class="timeImg" src="../../assets/images/time.png"></image>
-		<picker class='time-picker' mode="multiSelector" bindchange="bindStartMultiPickerChange" bindtap='pickerTap' bindcolumnchange="bindMultiPickerColumnChange" value="{{multiIndex}}" range="{{multiArray}}">{{startDate}}</picker>
-	</view>
-</view>
-
-<!-- 扫码 -->
-<view class="footerBox {{fromScan?'scan-ft':''}}" hidden="{{isDriverFriends}}">
-	<view class="nowTime">
-		<block wx:if="{{!fromScan}}">
-			<view class="circle-str"></view>
-			<navigator url="/pages/starting/starting">
-				<view class="didi-input-str" style="color: #333333">{{startAddress}}</view>
-			</navigator>
-			<view>
-				<view type="text" class="didi-input-end" bindtap="toDestination" style="color: #999">{{destination || '您要去哪儿'}}</view>
-			</view>
-			<view class="circle-end"></view>
-		</block>
-
-		<block wx:else>
-			<view class="scan-address">
-				<view type="text" class="didi-input-end scan-ipt" bindtap="toDestination" data-from="scan" style="color: #999">{{destination || '您要去哪儿'}}</view>
-			</view>
-			<view class="circle-end scan-c"></view>
-			<button class="scan-btn" bindtap="scanBtn">开始行程</button>
-		</block>
-
-	</view>
-</view>
-
-<!-- 通知/优惠券 -->
-<view class="notice-cover" wx:if="{{showNotice || showCoupon}}">
-
-	<block wx:if="{{showNotice}}">
-		<view class="notice-wrapper">
-			<swiper class="notice-swiper" indicator-dots="true" autoplay="true" interval="5000" circular="true">
-				<block wx:for="{{noticeCont}}" wx:key="index">
-					<swiper-item>
-						<view class="notice_tit">{{item.title}}</view>
-						<image wx:if="{{item.picUrl}}" class="notice_img" src="{{item.picUrl}}" bindtap="toOut" data-href="{{item.hrefUrl}}"></image>
-						<image wx:else class="notice_img" src="../../assets/images/banner.jpg" bindtap="toOut" data-href="{{item.hrefUrl}}"></image>
-						<scroll-view class="notice_cont" scroll-y="true">
-							<view>{{item.content}}</view>
-						</scroll-view>
-					</swiper-item>
-				</block>
-			</swiper>
-			<view class="close-notice" bindtap="closeNotice">
-				<image src="../../assets/images/popup_guanbi.png"></image>
-			</view>
-		</view>
-	</block>
-
-	<block wx:if="{{showCoupon}}">
-		<view class="coupon-wrapper">
-			<image class="bg_bg" src="../../assets/images/popup_bg01.png"></image>
-			<image class="sm_bg" src="../../assets/images/popup_bg02.png"></image>
-			<view class="cou_tit">恭喜获得</view>
-			<view class="cou_cont">
-				<scroll-view class="cou_scroll" scroll-y="true">
-					<view class="cou_item" wx:for="{{couponList}}" wx:key="index">
-						<image class="ci_bg" src="../../assets/images/youhuiquan_bg01.png"></image>
-						<image class="ci_tr" src="../../assets/images/youhuiquan_biaoqian01.png"></image>
-						<view class="cou_left">
-							<view class="cou_price" wx:if="{{item.couponType == 1}}">￥<text>{{item.couponValue}}</text></view>
-							<view class="cou_price" wx:if="{{item.couponType == 2}}"><text>{{item.couponValue}}</text>折</view>
-						</view>
-						<view class="cou_right">
-							<view class="cou_name">{{item.couponName}}</view>
-							<view class="cou_time">{{item.validateTimeDesc}}</view>
-						</view>
-						<view class="cou_num">{{item.couponNumber}}</view>
-					</view>
-				</scroll-view>
-			</view>
-			<view class="cou_tip">已放进您的账户</view>
-			<view class="cou_btn" bindtap="couponCheck">
-				<image src="../../assets/images/popup_button.png"></image>
-				<view class="cou_check">立即查看</view>
-			</view>
-			<view class="close_cou" bindtap="closeCoupon">
-				<image src="../../assets/images/popup_guanbi.png"></image>
-			</view>
-		</view>
-	</block>
-
-</view>
-
-<!-- 远程 -->
-<view wx:if="{{fixedLine}}" class="fixed-line">
-	<view class="curr_city">当前定位所在城市：<text bindtap="chooseLineCity">{{currentCity}}</text></view>
-	<view class="line-wrapper">
-		<view class="line-which">
-			<view class="line-start">深圳南山</view>
-			<image src="../../assets/images/line_car.png" class="line_car_png"></image>
-			<view class="line-end">请选择城市</view>
-		</view>
-
-		<view class="line-detail-address">
-			<view class="circle-str"></view>
-			<view bindtap="lineDetailStr">
-				<view class="didi-input-str" style="color: #333333">{{lineStartAddress}}</view>
-			</view>
-			<view bindtap="lineDetailEnd">
-				<view type="text" class="didi-input-end" style="color: #999">{{lineDestination || '您要去哪儿'}}</view>
-			</view>
-			<view class="circle-end"></view>
-		</view>
-
-		<view class="line-price">
-			<view class="line-tot">￥<text>45.00</text></view>
-			<view class="line-desc">（已优惠15.0元）</view>
-		</view>
-
-		<view class="orderTimeBox lineTimeBox">
-			<image class="timeImg" src="../../assets/images/time.png"></image>
-			<picker class='time-picker' mode="multiSelector" bindchange="bindStartMultiPickerChange" bindtap='pickerTap' bindcolumnchange="bindMultiPickerColumnChange" value="{{multiIndex}}" range="{{multiArray}}">{{lineStartDate}}</picker>
-		</view>
-
-		<view class="line-person-num">
-			<image src="../../assets/images/user-num.png"></image>
-			<view class="line-per-wrapper">
-				<block wx:for="{{[1,2,3,4]}}" wx:key="*this">
-					<view class="line-per-item {{lineCurPerNum === item ? 'line-per-item-active' : ''}}" bindtap="clickPerNum" data-num="{{item}}">{{item}}人</view>
-				</block>
-			</view>
-		</view>
-
-		<button class="line-btn">远程呼叫</button>
-	</view>
-</view>
-
-<!-- 好友司机 -->
-<view class="driver-friends" wx:if="{{isDriverFriends}}" bindtap="hideDelModal">
-	<view class="bg" wx:if="{{noFriends}}">
-		<image src="../../assets/images/no-friend.png"></image>
-		<view>您还没有好友司机~</view>
+	
+	<!-- 好友司机点击用车出现司机信息 -->
+	<view class="use-cart-info" wx:if="{{fromFriendUseCart}}">
+		<view class="name">{{driverFriend.name}}</view>
+		<view class="cart-num">编号: {{driverFriend.cart_no}}</view>
 	</view>
 
-	<view class="list" wx:else>
-		<block wx:for="{{driver}}" wx:key="index">
-			<view class="item" bindlongpress="delFriend" data-id="{{item.driverNo}}" bindtap="hideDelModal">
-				<view class="pt">
-					<image class="photo" src="{{item.headPicUrl || driverImg}}"></image>
-					<view class="name">{{item.driverName}}</view>
-				</view>
+	<!-- 城市未开通服务 -->
+	<view class="city-no-service" hidden="{{hideCityNoService}}">当前区域未开通服务，敬请期待</view>
 
-				<view class="driver-info">
-					<view class="inner">
-						<view class="left">
-							<view class="company">{{item.belongCompany}}</view>
-							<view class="car-num">{{item.carNumber}}</view>
-						</view>
-						<view class="right">
-							<view class="distance">{{item.distance?item.distance:item.stateName}}</view>
-							<view class="car-id">编号：{{item.driverNo}}</view>
-						</view>
-					</view>
-					<view class="btm">
-						<view class="car_desc">{{item.bodyColor}} {{item.carDescribe}}</view>
-						<image src="../../assets/images/common_icon_phone.png" data-phone="{{item.phone}}" bindtap="callPhone"></image>
-					</view>
+	<!-- 积分图标 -->
+	<movable-area wx:if="{{currentTab === 0}}" class="movable-area">
+		<movable-view class="movable-view" direction="all" x="350" catchtap="toMyIntegral">
+			<image class="integral-img" src="http://scapp.xysc16.com/upload/wmp/imgs/jifen1.gif"></image>
+		</movable-view>
+	</movable-area>
 
-				</view>
-				<!-- <view class="status">
-					<view class="color {{item.stateName === '在线' ? 'online' : (item.stateName === '行程中' ? 'driving' : 'offline')}}"></view>
-					<view class="txt">{{item.stateName}}</view>
-				</view> -->
-				<view class="use-car" data-state="{{item.state}}" data-name="{{item.driverName}}" data-cart_id="{{item.driverId}}" data-cart_no="{{item.driverNo}}" data-cart_num="{{item.carNumber}}" bindtap="useCart">用车</view>
-				<view class="del-friend" wx:if="{{showDel === item.driverNo}}" bindtap="confirmDel" data-id="{{item.driverNo}}">删除好友司机</view>
+	<!-- 会员进度 -->
+	<view class="vip-detail" wx:if="{{showVipProgress}}">
+		<view class="vip-left">
+			<view class="vip-order">
+				<text>订单</text>
+				<progress percent="{{integralMqttData.orderPercent}}" active="true" active-mode="forwards" stroke-width="8" border-radius="5" activeColor="#FFC837" style="width:280rpx;height:16rpx;margin:0 10rpx;"></progress>
+				<text>{{integralMqttData.orderNumber}}单/{{integralMqttData.standardOrderNumber}}单</text>
 			</view>
-		</block>
+			<view class="vip-integral">
+				<text>积分</text>
+				<progress percent="{{integralMqttData.integralPercent}}" active="true" active-mode="forwards" stroke-width="8" border-radius="5" activeColor="#FFC837" style="width:280rpx;height:16rpx;margin:0 10rpx;"></progress>
+				<text>{{integralMqttData.integralNumber}}分/{{integralMqttData.standardIntegralNumber}}分</text>
+			</view>
+		</view>
+		<view class="vip-rt">
+			<image class="vip-img" src="http://scapp.xysc16.com/upload/wmp/imgs/vip1.png"></image>
+			<view>完成任务升级VIP</view>
+		</view>
 	</view>
-	<view class="dr_tips">最多只能加8位好友司机哦~</view>
-
-
-
-
-	<!-- <view class="all-list">
-		<view class="online-driver driver">
-			<view class="title" bindtap="unfold1">
-				<view class="arrow" animation="{{animationData1}}"></view>
-				<text>在线司机</text>
-			</view>
-
-			<view class="item" hidden="{{!list1Show}}" wx:for="{{onlineDriverList}}" wx:key="carId">
-				<image class="photo" src="../../assets/images/driver.png"></image>
-				<view class="driver-info">
-					<view class="dt">
-						<view class="left">
-							<view class="name">{{item.driverName}}</view>
-							<view class="car-num">{{item.carNumber}}</view>
-						</view>
-						<view class="right">
-							<view class="distance">距离: {{item.distance}}</view>
-							<view class="car-id">编号：{{item.driverNo}}</view>
-						</view>
-					</view>
-					<view class="company">{{item.belongCompany}}</view>
-				</view>
-				<view class="use-cart" type="primary" data-name="{{item.driverName}}" data-cart_id="{{item.driverId}}" data-cart_no="{{item.driverNo}}" data-cart_num="{{item.carNumber}}" bindtap="useCartOnline">用车</view>
-			</view>
-		</view>
-
-		<view class="working-driver driver">
-			<view class="title" bindtap="unfold2">
-				<view class="arrow" animation="{{animationData2}}"></view>
-				<text>行程中司机</text>
-			</view>
-			<view class="item" hidden="{{!list2Show}}" wx:for="{{workingDriverList}}" wx:key="carId">
-				<image class="photo" src="../../assets/images/driver.png"></image>
-				<view class="driver-info">
-					<view class="dt">
-						<view class="left">
-							<view class="name">{{item.driverName}}</view>
-							<view class="car-num">{{item.carNumber}}</view>
-						</view>
-						<view class="right">
-							<view class="state">{{item.stateName}}</view>
-							<view class="car-id">编号：{{item.driverNo}}</view>
-						</view>
-					</view>
-					<view class="company">{{item.belongCompany}}</view>
-				</view>
-				<view class="use-cart" type="primary" data-name="{{item.driverName}}" data-cart_id="{{item.driverId}}" data-cart_no="{{item.driverNo}}" data-cart_num="{{item.carNumber}}" bindtap="useCartWorking">用车</view>
-			</view>
-		</view>
-
-		<view class="offline-driver driver">
-			<view class="title" bindtap="unfold3">
-				<view class="arrow" animation="{{animationData3}}"></view>
-				<text>离线司机</text>
-			</view>
-			<view class="item" hidden="{{!list3Show}}" wx:for="{{offlineDriverList}}" wx:key="carId">
-				<image class="photo" src="../../assets/images/driver.png"></image>
-				<view class="driver-info">
-					<view class="dt">
-						<view class="left">
-							<view class="name">{{item.driverName}}</view>
-							<view class="car-num">{{item.carNumber}}</view>
-						</view>
-						<view class="right">
-							<view class="state">{{item.stateName}}</view>
-							<view class="car-id">编号：{{item.driverNo}}</view>
-						</view>
-					</view>
-					<view class="company">{{item.belongCompany}}</view>
-				</view>
-				<view class="use-cart" type="primary" data-name="{{item.driverName}}" data-cart_id="{{item.driverId}}" data-cart_no="{{item.driverNo}}" data-cart_num="{{item.carNumber}}" bindtap="useCartOffline">用车</view>
-			</view>
-		</view>
-	</view> -->
-
-</view>
-
-<!-- 好友司机点击用车出现司机信息 -->
-<view class="use-cart-info" wx:if="{{fromFriendUseCart}}">
-	<view class="name">{{driverFriend.name}}</view>
-	<view class="cart-num">编号: {{driverFriend.cart_no}}</view>
 </view>

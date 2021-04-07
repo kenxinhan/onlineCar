@@ -1,0 +1,204 @@
+<view class="container">
+	<view wx:if="{{isload}}" class="optical"></view>
+	<map class="map" id="map" style="height:{{isWaiting?'80%':'77%'}}" scale="17" latitude="{{latitude}}" longitude="{{longitude}}" polyline="{{polyline}}" markers="{{markers}}" controls="{{controls}}" include-points='{{points}}' bindcontroltap="bindcontroltap" show-location="{{mapShowLocation}}">
+	</map>
+	<view class="total">
+		<block wx:if="{{!isWaiting}}">
+			<view class="total_driver">
+				<view class="driver_info">
+					<view class="driver_img">
+						<image class="driverImg" src="{{driver.headimg || driverImg}}" />
+						<view class="name">{{driver.name}}</view>
+					</view>
+
+					<view class="driver_detailed">
+						<view class="d_top">
+							<view class="company">{{driver.company}}</view>
+							<view>{{driver.orderTotal}}单</view>
+						</view>
+
+						<view class="d_md">
+							<view class="detailed_Cartnumber">{{driver.licensePlate}}</view>
+							<view class="d_id">编号：{{driver.idNo}}</view>
+						</view>
+						<view class="detailed_cart">{{driver.carDesc}}</view>
+
+					</view>
+				</view>
+				<view class="driver_icon">
+					<view class="ic_phone" bindtap="callDriver" data-phone="{{driver.phone}}">
+						<image src="http://scapp.xysc16.com/upload/wmp/imgs/common_icon_phone.png" />
+					</view>
+				</view>
+			</view>
+			<view class="footer">
+				<view class="enpty-box"></view>
+				<view class="footer-box" wx:if="{{!hasSit}}">
+					<view wx:if="{{showCancleBtn}}" class="footer-desc" bindtap="cancleWait" style="width:{{firBtnWidth}}">取消订单</view>
+					<view wx:if="{{fixedLine && showCancleBtn}}" class="footer-desc" bindtap="recallLine" style="width:{{firBtnWidth}}">重新呼叫</view>
+					<view class="footer-desc2" bindtap="toService" style="width:{{firBtnWidth}}">联系客服</view>
+				</view>
+				<view class="footer-box" wx:else>
+					<view class="{{fixedLine || exclusiveCar?'footer-desc':'footer-desc2'}}" bindtap="toService" style="width:{{secBtnWidth}}">联系客服</view>
+					<view wx:if="{{fixedLine}}" class="footer-desc2" bindtap="linePay" style="width:{{secBtnWidth}};color:#FF8008">{{linePayText}}</view>
+					<view wx:if="{{exclusiveCar && msg1012}}" class="footer-desc2" bindtap="EXC_toLocalMap" style="width:{{secBtnWidth}}">导航到停车点</view>
+				</view>
+				<view wx:if="{{fixedLine && linePayText !== '付款'}}" class="line-has-pay">随时恭候 用心服务</view>
+			</view>
+		</block>
+
+		<!-- 等待应答状态底部 -->
+		<view wx:else class="wait-info">
+		<!-- 远程 -->
+			<block wx:if="{{fixedLine}}">
+				<view class="wait-price line-wait-price">
+					<view class="tot">共计<text class="tot_num"> {{lineOrderInfo.actualAmount}} </text>元</view>
+					<view class="desc" style="text-decoration: line-through;">原价￥{{lineOrderInfo.virtualSumAmount}}</view>
+				</view>
+			</block>
+			<!-- 包车 -->
+			<block wx:elif="{{exclusiveCar}}">
+				<view class="wait-price line-wait-price">
+					<view class="tot">共计<text class="tot_num"> {{EXC_orderInfo.actualAmount}} </text>元</view>
+					<view class="desc" style="text-decoration: line-through;">原价￥{{EXC_orderInfo.virtualSumAmount}}</view>
+				</view>
+			</block>
+			<!-- 其他 -->
+			<block wx:else>
+				<view class="path-info">
+					<view class="path-time">约{{pathTime}}</view>
+					<view class="distance">{{distance}}公里</view>
+				</view>
+				<view wx:if="{{taxi}}" class="wait-price">
+					<view class="tot">打表计价</view>
+				</view>
+				<view wx:else class="wait-price">
+					<view class="tot">约<text class="tot_num"> {{totPrice}} </text>元</view>
+					<view class="desc">（已优惠{{descPrice}}元）</view>
+				</view>
+			</block>
+			<view wx:if="{{showCancleBtn}}" class="wait-cancle" bindtap="cancleWait">取消订单</view>
+		</view>
+
+	</view>
+
+	<!-- <modal title="" confirm-text="等待司机" cancel-text="取消叫车" hidden="{{modalHidden}}" bindconfirm="modalConfirm" bindcancel="modalCancel">
+		<text class="modal-text">{{cancleCont}}</text>
+	</modal> -->
+
+	<view wx:if="{{isWaiting && !fromFriendUseCart}}" class="wait" style="top:{{exclusiveCar && EXC_dateNum?'7%':'2%'}}">
+		<block wx:if="{{fixedLine || exclusiveCar}}">
+			<view class="wright line-tip">正在为您匹配</view>
+		</block>
+		<block wx:else>
+			<view class="wleft">
+				<view class="txt">等待</view>
+				<view class="time">{{time}}</view>
+			</view>
+			<view class="wright">{{title_tips}}</view>
+		</block>
+	</view>
+
+	<view class="walk-tips" style="top:{{exclusiveCar && EXC_dateNum?'7%':'2%'}}" hidden="{{hideWalkTips}}">
+		<image src="http://scapp.xysc16.com/upload/wmp/imgs/walk.png"></image>
+		<view>
+			步行至<text>[{{startAddress}}]</text>上车
+		</view>
+	</view>
+
+	<view class="path-tips" wx:if="{{pathTips}}">
+		<block wx:if="{{totPrice}}">
+			<view class="path-tips-inner" style="border-right:{{fixedLine?'':'1rpx solid #ccc'}}">
+				<view class="distance">
+					距离终点
+					<text>{{distance}}公里</text>
+				</view>
+				<view class="time">
+					预计行驶
+					<text>{{pathTime}}</text>
+				</view>
+			</view>
+			<view class="money" wx:if="{{!fixedLine}}">
+				<text >{{totPrice}}元</text>
+			</view>
+		</block>
+
+		<block wx:else>
+			<view class="hidePrice">距起点 <text>{{distance}}公里 {{pathTime}}</text></view>
+		</block>
+
+	</view>
+
+
+	<view wx:if="{{isWaiting}}" class="future-wrapper  {{fixedLine || exclusiveCar?'has-future_line' : ''}}" style="bottom:{{fromLineScan?'172rpx' : ''}}">
+		<!-- 包车 -->
+		<block wx-if="{{exclusiveCar}}">
+			<!-- 线路 -->
+			<view class="EXC-line" wx-if="{{EXC_orderInfo.orderType == 5}}">
+				<view class="EXC-line-str">{{EXC_orderInfo.startStationName}}</view>
+				<image wx:if="{{EXC_orderInfo.lineType == 6}}" src="http://scapp.xysc16.com/upload/wmp/imgs/line_fc.png" style="width:60rpx;height:60rpx;"></image>
+				<image wx:elif="{{EXC_orderInfo.lineType == 5}}" src="http://scapp.xysc16.com/upload/wmp/imgs/line_mr.png" style="width:60rpx;height:60rpx;"></image>
+				<view class="EXC-line-end">{{EXC_orderInfo.endStationName}}</view>
+			</view>
+			
+			<!-- 时间 -->
+			<view class="EXC-time" wx-if="{{EXC_orderInfo.orderType == 6}}">
+				<view class="EXC-time-city">
+					<image src="http://scapp.xysc16.com/upload/wmp/imgs/EXC-city.png" style="width:50rpx;height:50rpx;margin-right:10rpx;"></image>
+					<text>{{EXC_orderInfo.cityName}}</text>
+				</view>
+				<view class="EXC-time-info">
+					<view class="EXC-date">包车天数：{{EXC_orderInfo.number}}天</view>
+					<view class="EXC-waiting-distance">时长：{{EXC_orderInfo.rulesName}}</view>
+				</view>
+			</view>
+
+			<!-- 上车点 -->
+			<view class="EXC-address">上车点： <text>{{EXC_orderInfo.srcName}}</text></view>
+		</block>
+
+
+		<!-- 有预约   -->
+		<view class="has-future" wx:if="{{startDate}}">
+			<image src="http://scapp.xysc16.com/upload/wmp/imgs/clock.png"></image>
+			<view class="fu-date">{{startDate}}</view>
+		</view>
+
+	</view>
+ 
+	<!-- 远程等待接驾提示 -->
+	<view wx:if="{{lineTips}}" class="line-tips {{msg1012?'line-tips1012':''}}" style="color:{{msg1012?'#333':''}}">{{msg1012?'司机位置：':''}}{{lineTips}}</view>
+
+	<!-- 包车显示剩余天数 -->
+	<view wx:if="{{EXC_dateNum}}" class="EXC-date-num">剩余包车天数：{{EXC_dateNum}}天</view>
+
+	<!-- 包车行程中 时长/里程 -->
+	<view wx:if="{{EXC_showDistance}}" class="EXC-distance">
+		<view class="{{msgExceedTimeInfo.isExceedTime == 1?'exceed-state':''}}">
+			<text>{{msgExceedTimeInfo.exceedTimeDescribe}}</text>
+		</view>
+		<view class="{{msgExceedTimeInfo.isExceedMileage == 1?'exceed-state':''}}">
+			<text>{{msgExceedTimeInfo.exceedMileageDescribe }}</text>
+		</view>
+
+	</view>
+
+	<!-- 包车行程等待中 顶部时长提示 -->
+	<view wx:if="{{EXC_drivingWaiting}}" class="EXC-distance EXC-distance2 {{exceedWaitingTime?'exceed-state':''}}">
+		<text>{{exceedWaitingTime?'等待时长已超时':'剩余免费等待时长'}}：</text>
+			<text>{{exceedWaitingTimeNum}}</text>
+	</view>
+
+  <!-- 好友司机点击用车出现司机信息 -->
+<view class="use-cart-info" wx:if="{{fromFriendUseCart}}">
+	<view class="name">{{friendDriver.name}}</view>
+	<view class="cart-num">编号: {{friendDriver.cart_no}}</view>
+</view>
+	
+	<!-- 积分图标 -->
+	<movable-area class="movable-area" wx:if="{{showIntegral}}">
+		<movable-view class="movable-view" direction="all" x="350" catchtap="toMyIntegral">
+			<image class="integral-img" src="http://scapp.xysc16.com/upload/wmp/imgs/jifen1.gif"></image>
+		</movable-view>
+	</movable-area>
+</view>

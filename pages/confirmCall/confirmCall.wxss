@@ -180,6 +180,7 @@
   flex-flow: column;
   justify-content: space-around;
   text-align: center;
+  padding: 30rpx 0;
 }
 
 .big-price {
@@ -198,8 +199,26 @@
 }
 
 .preferentialPrice{
-  color: #999;
-  font-size: 22rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+.choose-coupon-text{
+  color: #FE2911;
+  margin-right: 20rpx;
+}
+
+.choose-coupon-btn{
+  width: 140rpx;
+  height: 40rpx;
+  line-height: 40rpx;
+  text-align: center;
+  background:linear-gradient(to right,#FE2108,#F57445);
+  border-radius: 10rpx;
+  color: #fff;
 }
 
 .footerBox .btnBox {
@@ -216,12 +235,54 @@
   line-height: 92rpx;
   font-size: 32rpx;
   background: linear-gradient(to right,#FF8008,#FFC837);
-  color: #fff;
   border: none;
+}
+
+.gray-btn{
+  background: linear-gradient(to right,#bbb,#bbb);
 }
 
 .text-list {
   display: block;
   font-size: 26rpx;
   line-height: 46rpx;
+}
+
+.use-cart-info{
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  width: 100vw;
+  padding: 10rpx 0;
+  display: flex;
+  justify-content: center;
+  font-size: 34rpx;
+  background-color: rgba(0, 0, 0,.4);
+  color: #fff;
+}
+
+.use-cart-info>.name{
+  padding-right: 30rpx;
+}
+
+.movable-area{
+  width: 100%;
+  height: 100vh;
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.movable-view{
+  width: 200rpx;
+  height: 200rpx;
+  z-index: 9999;
+  pointer-events: auto;
+}
+
+.integral-img{
+  width: 100%;
+  height: 100%;
 }

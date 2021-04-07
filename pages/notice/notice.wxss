@@ -1,7 +1,28 @@
 .container{
   width: 100%;
-  padding: 0 40rpx;
+  height: 100vh;
   box-sizing: border-box;
+  background-color: #F2F2F2;
+}
+
+.no_msg{
+  width: 300rpx;
+  position: absolute;
+  top: 200rpx;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.no_msg>image{
+  width: 300rpx;
+  height: 300rpx;
+  margin-bottom: 20rpx;
+}
+
+.no_txt{
+  font-size: 28rpx;
+  color: #FF8008;
+  text-align: center;
 }
 
 .has-read{
@@ -9,25 +30,29 @@
   font-size: 32rpx;
   padding: 20rpx;
   color: #333;
+  background-color: #fff;
+  margin-bottom: 20rpx;
 }
 
 .sys_notice,.act_notice{
   position: relative;
+  height: 175rpx;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 30rpx;
-  margin-bottom: 30rpx;
-  border-bottom: 1rpx solid #ccc;
+  padding: 40rpx 30rpx;
+  border-bottom: 1rpx solid #f2f2f2;
+  background-color: #fff;
+  box-sizing: border-box;
 }
 
 image{
-  width: 110rpx;
-  height: 110rpx;
+  width: 44rpx;
+  height: 44rpx;
 }
 
 .cont{
-  width: 78%;
+  width: 590rpx;
 }
 
 .top{
@@ -37,34 +62,35 @@ image{
 }
 
 .tit{
-  font-size: 36rpx;
+  font-size: 32rpx;
   font-weight: bold;
   padding-bottom: 20rpx;
+  color: #333;
 }
 
 .time{
-  color: #bbb;
-  font-size: 34rpx;
+  color: #999;
+  font-size: 28rpx;
 }
 
 .btm{
-  color: #999;
+  color: #333;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
   word-break: break-all;
-  font-size: 34rpx;
+  font-size: 28rpx;
 }
 
 .dot{
   position: absolute;
   left: 75rpx;
-  top: 0;
-  width: 50rpx;
-  height: 50rpx;
+  top: 30rpx;
+  width: 40rpx;
+  height: 40rpx;
   text-align: center;
-  line-height: 50rpx;
-  background-color: #27bfca;
+  line-height: 40rpx;
+  background-color: #F11818;
   color: #fff;
   border-radius: 50%;
 }

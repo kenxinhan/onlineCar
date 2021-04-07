@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "slideCoupon":"/components/slideCoupon/slideCoupon",
+    "integralExchangeModal":"/components/integralExchangeModal/integralExchangeModal"
+  },
+  "navigationBarTitleText": "包车"
+}

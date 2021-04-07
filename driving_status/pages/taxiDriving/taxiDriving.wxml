@@ -1,0 +1,49 @@
+<view class="container">
+	<view class="top">
+    <view class="end-address">{{driverInfo.desName}}</view>
+    <view class="to-location" bindtap="toLocalMap">
+      <image src="http://scapp.xysc16.com/upload/wmp/imgs/arrow-top.png" style="width:50rpx;height:50rpx;margin-right:10rpx;"></image>
+      <text>导航</text>
+    </view>
+    <view>
+      <image src="http://scapp.xysc16.com/upload/wmp/imgs/taxi-driving.gif" style="width:320rpx;height:120rpx;"></image>
+    </view>
+  </view>
+
+	<view class="md">
+		<view class="total_driver">
+			<view class="driver_info">
+				<view class="driver_img">
+					<image class="driverImg" src="{{driver.headimg || driverImg}}" />
+					<view class="name">{{driverInfo.name}}</view>
+				</view>
+
+				<view class="driver_detailed">
+					<view class="d_top">
+						<view class="company">{{driverInfo.company}}</view>
+						<view>{{driverInfo.orderTotal}}单</view>
+					</view>
+
+					<view class="d_md">
+						<view class="detailed_Cartnumber">{{driverInfo.licensePlate}}</view>
+						<view class="d_id">编号：{{driverInfo.idNo}}</view>
+					</view>
+					<view class="detailed_cart">{{driverInfo.carDesc}}</view>
+				</view>
+			</view>
+			<view class="driver_icon" bindtap="callDriver" data-phone="{{driverInfo.phone}}">
+					<image src="http://scapp.xysc16.com/upload/wmp/imgs/common_icon_phone.png" />
+			</view>
+		</view>
+
+		<view class="call-service">
+			<image class="call-icon" bindtap="toService" src="http://scapp.xysc16.com/upload/wmp/imgs/icon-kefu.png"></image>
+			<text class="call-text">联系客服</text>
+		</view>
+	</view>
+
+  <view class="tips">注意乘车安全，请确认车主信息</view>
+	<view class="btm">
+		<ad unit-id="adunit-df4abd38af47cce3" bindload="adLoad" binderror="adError"></ad>
+	</view>
+</view>

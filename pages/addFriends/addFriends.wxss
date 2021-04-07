@@ -17,6 +17,8 @@ input{
   border: 1rpx solid #ccc;
   border-radius: 20rpx;
   box-shadow: 4rpx 4rpx 4rpx #eee inset;
+  background-color: #f2f2f2;
+  font-size: 32rpx;
 }
 
 
@@ -24,14 +26,14 @@ input{
   padding: 0 50rpx;
   margin: 216rpx auto 0;
   text-align: center;
-  color: #9A9A9A;
+  color: #FF8008;
   font-size: 28rpx;
 }
 
 .bg-img image{
-  width: 324rpx;
-  height: 317rpx;
-  margin-bottom: 21rpx;
+  width: 300rpx;
+  height: 300rpx;
+  margin-bottom: 20rpx;
 }
 
 .item{
@@ -41,7 +43,8 @@ input{
   font-size: 30rpx;
   padding: 20rpx 0 40rpx;
   border-radius: 20rpx;
-  background-color: #eee;
+  background-color: #fff;
+  box-shadow: 0 0 6rpx 6rpx #eee;
 }
 
 .photo{
@@ -68,7 +71,6 @@ input{
 
 .company{
   height: 48rpx;
-  font-weight: bold;
   padding-bottom: 5rpx;
 }
 
@@ -88,4 +90,11 @@ input{
 .has-add{
   background-color: #ccc;
   color: #999;
+}
+
+.car-num,.car-id{
+  font-weight: bold;
+  background-color: #f2f2f2;
+  padding: 0 8rpx;
+  border-radius: 5rpx;
 }

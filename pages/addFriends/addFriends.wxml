@@ -5,10 +5,10 @@
 
 	<view class="bg-img" hidden="{{hasSearchRes}}">
 		<view wx:if="{{noDriver}}">
-			<image src="../../assets/images/no-this-driver.png"></image>
+			<image src="http://scapp.xysc16.com/upload/wmp/imgs/no-this-driver.png"></image>
 			<view>没有这位司机哦~</view>
 		</view>
-		<image wx:else src="../../assets/images/no-friend.png"></image>
+		<image wx:else src="http://scapp.xysc16.com/upload/wmp/imgs/no-friend.png"></image>
 	</view>
 	<view class="item" hidden="{{!hasSearchRes}}">
 		<image class="photo" src="{{driverInfo.headPicUrl || driverImg}}"></image>

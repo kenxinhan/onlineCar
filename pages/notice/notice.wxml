@@ -1,14 +1,23 @@
 <view class="container">
-	<view class="has-read {{allRead?'read-done':''}}" bindtap="hasRead">全部已读</view>
-	<view class="sys_notice" wx:for="{{noticeList}}" wx:key="index" bindtap="toDetail" data-id="{{item.id}}">
-		<image src="../../assets/images/tongzhi.png"></image>
-		<view class="cont">
-			<view class="top">
-				<view class="tit">{{item.describe}}</view>
-				<view class="time">{{time.timeDescribe}}</view>
-			</view>
-			<view class="btm">{{item.title}}</view>
+	<block wx:if="{{noMessage}}">
+		<view class="no_msg">
+			<image src="http://scapp.xysc16.com/upload/wmp/imgs/no-notice.png"></image>
+			<view class="no_txt">这里很干净，没有消息</view>
 		</view>
-		<view class="dot" wx:if="{{ item.num != 0}}">{{item.num}}</view>
-	</view>
+	</block>
+
+	<block wx:else>
+		<view class="has-read {{allRead?'read-done':''}}" bindtap="hasRead">全部已读</view>
+		<view class="sys_notice" wx:for="{{noticeList}}" wx:key="index" bindtap="toDetail" data-id="{{item.id}}">
+			<image src="http://scapp.xysc16.com/upload/wmp/imgs/tongzhi.png"></image>
+			<view class="cont">
+				<view class="top">
+					<view class="tit">{{item.describe}}</view>
+					<view class="time">{{time.timeDescribe}}</view>
+				</view>
+				<view class="btm">{{item.title}}</view>
+			</view>
+			<view class="dot" wx:if="{{ item.num != 0}}">{{item.num}}</view>
+		</view>
+	</block>
 </view>

@@ -1,0 +1,72 @@
+/* components/integralExchangeModal/integralExchangeModal.wxss */
+.cover {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 9999;
+  background-color: rgba(3, 3, 3, .7);
+}
+
+.cover-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  top: 448rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600rpx;
+  height: 440rpx;
+  background-color: #fff;
+  border-radius: 10rpx;
+  color: #333;
+  font-weight: bold;
+  box-sizing: border-box;
+  padding-top: 30rpx;
+  overflow: hidden;
+}
+
+.cover-inner2{
+  padding-top: 80rpx;
+}
+
+.cover-title {
+  font-size: 36rpx;
+}
+
+.cover-num {
+  display: flex;
+  align-items: center;
+  margin: 20rpx 0;
+  font-size: 24rpx;
+}
+
+.cover-time {
+  font-size: 28rpx;
+  line-height: 60rpx;
+  margin: 0 60rpx;
+  text-align: center;
+}
+
+.cover-btn {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100rpx;
+  line-height: 100rpx;
+  text-align: center;
+  font-size: 32rpx;
+  background-color: #FFC8C7;
+  color: #F11818;
+}
+
+.del-img {
+  position: absolute;
+  top: 30rpx;
+  right: 30rpx;
+  width: 44rpx;
+  height: 44rpx;
+}

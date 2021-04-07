@@ -105,3 +105,7 @@ page{
   height: 317rpx;
   margin-bottom: 21rpx;
 }
+
+.bg-cont{
+  color: #FF8008;
+}
